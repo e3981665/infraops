@@ -1,17 +1,18 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { ApiError } from '@/shared/api/http-client'
 import { useTranslation } from '@/shared/i18n/useTranslation'
+import type { SchemaTranslate } from '@/shared/i18n/schema-translation'
 
-const actionSchema = z.object({
-  approvalComment: z.string().max(2000).optional(),
-  rejectionReason: z.string().max(2000).optional(),
-  reworkReason: z.string().max(2000).optional(),
+const createActionSchema = (t: SchemaTranslate) => z.object({
+  approvalComment: z.string().max(2000, t('validations.commentMax')).optional(),
+  rejectionReason: z.string().max(2000, t('validations.reasonMax')).optional(),
+  reworkReason: z.string().max(2000, t('validations.reasonMax')).optional(),
 })
 
-type ActionFormValues = z.infer<typeof actionSchema>
+type ActionFormValues = z.infer<ReturnType<typeof createActionSchema>>
 
 interface PreventiveValidationActionPanelProps {
   status: string
@@ -29,13 +30,14 @@ export function PreventiveValidationActionPanel({
   const { t } = useTranslation()
   const [actionError, setActionError] = useState<string | null>(null)
   const [actionSuccess, setActionSuccess] = useState<string | null>(null)
+  const validationActionSchema = useMemo(() => createActionSchema(t), [t])
   const {
     formState: { errors, isSubmitting },
     getValues,
     register,
     setError,
   } = useForm<ActionFormValues>({
-    resolver: zodResolver(actionSchema),
+    resolver: zodResolver(validationActionSchema),
     defaultValues: {
       approvalComment: '',
       rejectionReason: '',

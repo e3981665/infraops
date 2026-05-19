@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   useFieldArray,
@@ -9,7 +9,7 @@ import {
 } from 'react-hook-form'
 import { ApiError } from '@/shared/api/http-client'
 import {
-  preventiveTemplateFormSchema,
+  createPreventiveTemplateFormSchema,
   type PreventiveTemplateFormValues,
 } from '@/modules/preventive-templates/schemas/preventive-template-form-schema'
 import type { PreventiveTemplateEntityTypeOption } from '@/modules/preventive-templates/types/preventive-template'
@@ -43,6 +43,7 @@ export function PreventiveTemplateForm({
 }: PreventiveTemplateFormProps) {
   const { t } = useTranslation()
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const preventiveTemplateFormSchema = useMemo(() => createPreventiveTemplateFormSchema(t), [t])
   const {
     control,
     handleSubmit,

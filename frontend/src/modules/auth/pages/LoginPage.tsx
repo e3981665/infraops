@@ -1,5 +1,5 @@
 import { startTransition } from 'react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
@@ -7,7 +7,7 @@ import { ApiError } from '@/shared/api/http-client'
 import { useAuthSession } from '@/modules/auth/hooks/useAuthSession'
 import { useTranslation } from '@/shared/i18n/useTranslation'
 import {
-  loginFormSchema,
+  createLoginFormSchema,
   type LoginFormValues,
 } from '@/modules/auth/schemas/login-form-schema'
 import { routePaths } from '@/shared/routing/route-paths'
@@ -22,6 +22,7 @@ export function LoginPage() {
   const { isAuthenticated, signIn, status } = useAuthSession()
   const { t } = useTranslation()
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const loginFormSchema = useMemo(() => createLoginFormSchema(t), [t])
 
   const redirectTarget =
     (location.state as NavigationState | null)?.from || routePaths.app

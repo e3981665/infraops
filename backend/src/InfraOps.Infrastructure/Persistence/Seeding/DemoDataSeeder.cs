@@ -11,17 +11,23 @@ using InfraOps.Domain.PreventiveExecutions.Models;
 using InfraOps.Domain.PreventiveTemplates.Entities;
 using InfraOps.Domain.PreventiveTemplates.Enums;
 using InfraOps.Domain.PreventiveTemplates.Models;
+using InfraOps.Infrastructure.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace InfraOps.Infrastructure.Persistence.Seeding;
 
 public sealed class DemoDataSeeder
 {
     private readonly InfraOpsDbContext _dbContext;
+    private readonly DemoSeedLabels _labels;
 
-    public DemoDataSeeder(InfraOpsDbContext dbContext)
+    public DemoDataSeeder(
+        InfraOpsDbContext dbContext,
+        IOptions<DevelopmentSeedOptions> developmentSeedOptions)
     {
         _dbContext = dbContext;
+        _labels = DemoSeedLabels.ForLocale(developmentSeedOptions.Value.DemoContentLocale);
     }
 
     public async Task SeedAsync(CancellationToken cancellationToken)
@@ -39,13 +45,13 @@ public sealed class DemoDataSeeder
         var sites = await _dbContext.Sites.ToDictionaryAsync(x => x.Code, cancellationToken);
         var now = DateTimeOffset.UtcNow;
 
-        var ups = await EnsureEntityTypeAsync("UPS", "ups", "Uninterruptible power supply systems.", admin.Id, cancellationToken);
-        var generator = await EnsureEntityTypeAsync("Generator", "generator", "Standby electrical generation assets.", admin.Id, cancellationToken);
-        var hvac = await EnsureEntityTypeAsync("HVAC", "hvac", "Operational cooling and ventilation assets.", admin.Id, cancellationToken);
+        var ups = await EnsureEntityTypeAsync(_labels.UpsName, "ups", _labels.UpsDescription, admin.Id, cancellationToken);
+        var generator = await EnsureEntityTypeAsync(_labels.GeneratorName, "generator", _labels.GeneratorDescription, admin.Id, cancellationToken);
+        var hvac = await EnsureEntityTypeAsync(_labels.HvacName, "hvac", _labels.HvacDescription, admin.Id, cancellationToken);
 
-        await EnsureTemplateAsync(ups, "Quarterly UPS Inspection", "quarterly-ups-inspection", "Power quality and battery inspection.", cancellationToken);
-        await EnsureTemplateAsync(generator, "Monthly Generator Run", "monthly-generator-run", "Readiness run and visual inspection.", cancellationToken);
-        await EnsureTemplateAsync(hvac, "Monthly HVAC Inspection", "monthly-hvac-inspection", "Cooling performance and equipment condition.", cancellationToken);
+        await EnsureTemplateAsync(ups, _labels.UpsTemplateName, "quarterly-ups-inspection", _labels.UpsTemplateDescription, cancellationToken);
+        await EnsureTemplateAsync(generator, _labels.GeneratorTemplateName, "monthly-generator-run", _labels.GeneratorTemplateDescription, cancellationToken);
+        await EnsureTemplateAsync(hvac, _labels.HvacTemplateName, "monthly-hvac-inspection", _labels.HvacTemplateDescription, cancellationToken);
 
         await EnsureInventoryItemAsync(ups, regions["north-region"], sites["north-hub"], "UPS-01", technician.Id, now.AddMonths(-8), cancellationToken);
         await EnsureInventoryItemAsync(ups, regions["north-region"], sites["riverside-station"], "UPS-02", technician.Id, now.AddMonths(-7), cancellationToken);
@@ -80,9 +86,9 @@ public sealed class DemoDataSeeder
 
         var fields = new[]
         {
-            new EntityFieldDefinitionDraft(null, "serialNumber", "Serial Number", EntityFieldType.Text, 1, true, true, null, "Manufacturer serial number.", []),
-            new EntityFieldDefinitionDraft(null, "manufacturer", "Manufacturer", EntityFieldType.Text, 2, false, true, null, null, []),
-            new EntityFieldDefinitionDraft(null, "model", "Model", EntityFieldType.Text, 3, false, true, null, null, [])
+            new EntityFieldDefinitionDraft(null, "serialNumber", _labels.SerialNumberLabel, EntityFieldType.Text, 1, true, true, null, _labels.SerialNumberHelpText, []),
+            new EntityFieldDefinitionDraft(null, "manufacturer", _labels.ManufacturerLabel, EntityFieldType.Text, 2, false, true, null, null, []),
+            new EntityFieldDefinitionDraft(null, "model", _labels.ModelLabel, EntityFieldType.Text, 3, false, true, null, null, [])
         };
 
         if (entityType is null)
@@ -149,24 +155,24 @@ public sealed class DemoDataSeeder
             [
                 new PreventiveTemplateSectionDraft(
                     null,
-                    "Visual Inspection",
+                    _labels.VisualInspectionSection,
                     1,
                     true,
                     [
-                        new PreventiveChecklistItemDraft(null, "equipmentClean", "Equipment clean?", PreventiveChecklistItemType.YesNo, 1, true, true, null, false, false, false, null, null, []),
-                        new PreventiveChecklistItemDraft(null, "activeAlarm", "Any active alarm?", PreventiveChecklistItemType.YesNo, 2, true, true, null, true, true, false, null, null, [])
+                        new PreventiveChecklistItemDraft(null, "equipmentClean", _labels.EquipmentCleanQuestion, PreventiveChecklistItemType.YesNo, 1, true, true, null, false, false, false, null, null, []),
+                        new PreventiveChecklistItemDraft(null, "activeAlarm", _labels.ActiveAlarmQuestion, PreventiveChecklistItemType.YesNo, 2, true, true, null, true, true, false, null, null, [])
                     ]),
                 new PreventiveTemplateSectionDraft(
                     null,
-                    "Operational Readings",
+                    _labels.OperationalReadingsSection,
                     2,
                     true,
                     [
-                        new PreventiveChecklistItemDraft(null, "operatingReading", "Primary operating reading", PreventiveChecklistItemType.Numeric, 1, true, true, "Use the normal operating unit for this asset.", true, false, false, 1, 500, []),
+                        new PreventiveChecklistItemDraft(null, "operatingReading", _labels.OperatingReadingQuestion, PreventiveChecklistItemType.Numeric, 1, true, true, _labels.OperatingReadingHelpText, true, false, false, 1, 500, []),
                         new PreventiveChecklistItemDraft(
                             null,
                             "condition",
-                            "Overall condition",
+                            _labels.OverallConditionQuestion,
                             PreventiveChecklistItemType.Select,
                             2,
                             true,
@@ -178,9 +184,9 @@ public sealed class DemoDataSeeder
                             null,
                             null,
                             [
-                                new PreventiveChecklistOptionDraft(null, "good", "Good", 1),
-                                new PreventiveChecklistOptionDraft(null, "warning", "Warning", 2),
-                                new PreventiveChecklistOptionDraft(null, "critical", "Critical", 3)
+                                new PreventiveChecklistOptionDraft(null, "good", _labels.GoodOption, 1),
+                                new PreventiveChecklistOptionDraft(null, "warning", _labels.WarningOption, 2),
+                                new PreventiveChecklistOptionDraft(null, "critical", _labels.CriticalOption, 3)
                             ])
                     ])
             ]));
@@ -201,10 +207,10 @@ public sealed class DemoDataSeeder
 
         await CreateExecutionAsync("UPS-01", technicianId, null, now.AddDays(-2), cancellationToken);
         await CreateExecutionAsync("UPS-02", technicianId, "submitted", now.AddDays(-5), cancellationToken);
-        await CreateExecutionAsync("GEN-01", technicianId, "approved", now.AddDays(-16), cancellationToken, validatorId, "Readings accepted.");
-        await CreateExecutionAsync("GEN-02", technicianId, "rejected", now.AddDays(-24), cancellationToken, validatorId, "Generator failed load-transfer criteria.");
-        await CreateExecutionAsync("HVAC-01", technicianId, "reworkRequested", now.AddDays(-10), cancellationToken, validatorId, "Clarify alarm comment and retake readings.");
-        await CreateExecutionAsync("HVAC-02", technicianId, "approved", now.AddMonths(-1), cancellationToken, validatorId, "Cooling checks reviewed.");
+        await CreateExecutionAsync("GEN-01", technicianId, "approved", now.AddDays(-16), cancellationToken, validatorId, _labels.ReadingsAcceptedComment);
+        await CreateExecutionAsync("GEN-02", technicianId, "rejected", now.AddDays(-24), cancellationToken, validatorId, _labels.GeneratorRejectedComment);
+        await CreateExecutionAsync("HVAC-01", technicianId, "reworkRequested", now.AddDays(-10), cancellationToken, validatorId, _labels.HvacReworkComment);
+        await CreateExecutionAsync("HVAC-02", technicianId, "approved", now.AddMonths(-1), cancellationToken, validatorId, _labels.HvacApprovedComment);
     }
 
     private async Task CreateExecutionAsync(
@@ -265,10 +271,10 @@ public sealed class DemoDataSeeder
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private static IReadOnlyCollection<PreventiveExecutionAnswerDraft> CreateCompletedAnswers(string targetStatus)
+    private IReadOnlyCollection<PreventiveExecutionAnswerDraft> CreateCompletedAnswers(string targetStatus)
     {
         var activeAlarmValue = targetStatus is "rejected" or "reworkRequested" ? "no" : "yes";
-        var activeAlarmComment = activeAlarmValue == "no" ? "Alarm condition observed during inspection." : null;
+        var activeAlarmComment = activeAlarmValue == "no" ? _labels.AlarmConditionComment : null;
         var condition = targetStatus switch
         {
             "rejected" => "critical",

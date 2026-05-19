@@ -1,40 +1,44 @@
 import { z } from 'zod'
+import {
+  defaultSchemaTranslate,
+  type SchemaTranslate,
+} from '@/shared/i18n/schema-translation'
 
-const entityFieldOptionSchema = z.object({
+const createEntityFieldOptionSchema = (t: SchemaTranslate) => z.object({
   id: z.string().uuid().optional(),
   value: z
     .string()
     .trim()
-    .min(1, 'Option value is required.')
-    .max(80, 'Option value cannot exceed 80 characters.'),
+    .min(1, t('entity.validation.optionValueRequired'))
+    .max(80, t('entity.validation.optionValueMax')),
   label: z
     .string()
     .trim()
-    .min(1, 'Option label is required.')
-    .max(120, 'Option label cannot exceed 120 characters.'),
+    .min(1, t('entity.validation.optionLabelRequired'))
+    .max(120, t('entity.validation.optionLabelMax')),
   displayOrder: z.coerce
     .number()
-    .int('Display order must be a whole number.')
-    .positive('Display order must be greater than zero.'),
+    .int(t('entity.validation.displayOrderWholeNumber'))
+    .positive(t('entity.validation.displayOrderPositive')),
 })
 
-const entityFieldDefinitionSchema = z
+const createEntityFieldDefinitionSchema = (t: SchemaTranslate) => z
   .object({
     id: z.string().uuid().optional(),
     fieldKey: z
       .string()
       .trim()
-      .min(1, 'Field key is required.')
-      .max(80, 'Field key cannot exceed 80 characters.')
+      .min(1, t('entity.validation.fieldKeyRequired'))
+      .max(80, t('entity.validation.fieldKeyMax'))
       .regex(
         /^[a-z][A-Za-z0-9]*$/,
-        'Field key must start with a lowercase letter and use only letters and numbers.',
+        t('entity.validation.fieldKeyPattern'),
       ),
     displayLabel: z
       .string()
       .trim()
-      .min(1, 'Display label is required.')
-      .max(120, 'Display label cannot exceed 120 characters.'),
+      .min(1, t('entity.validation.displayLabelRequired'))
+      .max(120, t('entity.validation.displayLabelMax')),
     fieldType: z.enum([
       'text',
       'textarea',
@@ -46,29 +50,29 @@ const entityFieldDefinitionSchema = z
     ]),
     displayOrder: z.coerce
       .number()
-      .int('Display order must be a whole number.')
-      .positive('Display order must be greater than zero.'),
+      .int(t('entity.validation.displayOrderWholeNumber'))
+      .positive(t('entity.validation.displayOrderPositive')),
     isRequired: z.boolean(),
     isActive: z.boolean(),
     placeholder: z
       .string()
       .trim()
-      .max(200, 'Placeholder cannot exceed 200 characters.')
+      .max(200, t('entity.validation.placeholderMax'))
       .optional()
       .or(z.literal('')),
     helpText: z
       .string()
       .trim()
-      .max(500, 'Help text cannot exceed 500 characters.')
+      .max(500, t('entity.validation.helpTextMax'))
       .optional()
       .or(z.literal('')),
-    options: z.array(entityFieldOptionSchema),
+    options: z.array(createEntityFieldOptionSchema(t)),
   })
   .superRefine((value, context) => {
     if (value.fieldType === 'select' && value.options.length === 0) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Select fields require at least one option.',
+        message: t('entity.validation.selectRequiresOption'),
         path: ['options'],
       })
     }
@@ -76,7 +80,7 @@ const entityFieldDefinitionSchema = z
     if (value.fieldType !== 'select' && value.options.length > 0) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Only select fields can define options.',
+        message: t('entity.validation.onlySelectCanDefineOptions'),
         path: ['options'],
       })
     }
@@ -90,7 +94,7 @@ const entityFieldDefinitionSchema = z
       if (normalizedValue && optionValues.has(normalizedValue)) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Option values must be unique within a field.',
+          message: t('entity.validation.optionValuesUnique'),
           path: ['options', index, 'value'],
         })
       }
@@ -98,7 +102,7 @@ const entityFieldDefinitionSchema = z
       if (optionOrders.has(option.displayOrder)) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Option display order must be unique within a field.',
+          message: t('entity.validation.optionDisplayOrderUnique'),
           path: ['options', index, 'displayOrder'],
         })
       }
@@ -108,29 +112,29 @@ const entityFieldDefinitionSchema = z
     })
   })
 
-export const entityTypeFormSchema = z
+export const createEntityTypeFormSchema = (t: SchemaTranslate = defaultSchemaTranslate) => z
   .object({
     name: z
       .string()
       .trim()
-      .min(1, 'Entity type name is required.')
-      .max(100, 'Entity type name cannot exceed 100 characters.'),
+      .min(1, t('entity.validation.nameRequired'))
+      .max(100, t('entity.validation.nameMax')),
     code: z
       .string()
       .trim()
-      .min(1, 'Entity type code is required.')
-      .max(60, 'Entity type code cannot exceed 60 characters.')
+      .min(1, t('entity.validation.codeRequired'))
+      .max(60, t('entity.validation.codeMax'))
       .regex(
         /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-        'Entity type code must use lowercase letters, numbers, and hyphens only.',
+        t('entity.validation.codePattern'),
       ),
     description: z
       .string()
       .trim()
-      .max(500, 'Description cannot exceed 500 characters.')
+      .max(500, t('entity.validation.descriptionMax'))
       .optional()
       .or(z.literal('')),
-    fieldDefinitions: z.array(entityFieldDefinitionSchema),
+    fieldDefinitions: z.array(createEntityFieldDefinitionSchema(t)),
   })
   .superRefine((value, context) => {
     const fieldKeys = new Set<string>()
@@ -142,7 +146,7 @@ export const entityTypeFormSchema = z
       if (fieldKeys.has(normalizedFieldKey)) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Field keys must be unique within an entity type.',
+          message: t('entity.validation.fieldKeysUnique'),
           path: ['fieldDefinitions', index, 'fieldKey'],
         })
       }
@@ -150,7 +154,7 @@ export const entityTypeFormSchema = z
       if (displayOrders.has(fieldDefinition.displayOrder)) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Display order must be unique within an entity type.',
+          message: t('entity.validation.displayOrderUnique'),
           path: ['fieldDefinitions', index, 'displayOrder'],
         })
       }
@@ -159,5 +163,7 @@ export const entityTypeFormSchema = z
       displayOrders.add(fieldDefinition.displayOrder)
     })
   })
+
+export const entityTypeFormSchema = createEntityTypeFormSchema()
 
 export type EntityTypeFormValues = z.infer<typeof entityTypeFormSchema>

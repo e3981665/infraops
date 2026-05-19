@@ -1,72 +1,76 @@
 import { z } from 'zod'
+import {
+  defaultSchemaTranslate,
+  type SchemaTranslate,
+} from '@/shared/i18n/schema-translation'
 
 const checklistItemTypes = ['yesNo', 'text', 'numeric', 'select'] as const
 
-const optionSchema = z.object({
+const createOptionSchema = (t: SchemaTranslate) => z.object({
   id: z.string().uuid().optional(),
   value: z
     .string()
     .trim()
-    .min(1, 'Option value is required.')
-    .max(80, 'Option value cannot exceed 80 characters.'),
+    .min(1, t('templates.validation.optionValueRequired'))
+    .max(80, t('templates.validation.optionValueMax')),
   label: z
     .string()
     .trim()
-    .min(1, 'Option label is required.')
-    .max(120, 'Option label cannot exceed 120 characters.'),
+    .min(1, t('templates.validation.optionLabelRequired'))
+    .max(120, t('templates.validation.optionLabelMax')),
   displayOrder: z.coerce
     .number()
-    .int('Option display order must be a whole number.')
-    .min(1, 'Option display order must be greater than zero.'),
+    .int(t('templates.validation.optionDisplayOrderWholeNumber'))
+    .min(1, t('templates.validation.optionDisplayOrderPositive')),
 })
 
-const checklistItemSchema = z
+const createChecklistItemSchema = (t: SchemaTranslate) => z
   .object({
     id: z.string().uuid().optional(),
     itemKey: z
       .string()
       .trim()
-      .min(1, 'Checklist item key is required.')
-      .max(80, 'Checklist item key cannot exceed 80 characters.')
+      .min(1, t('templates.validation.itemKeyRequired'))
+      .max(80, t('templates.validation.itemKeyMax'))
       .regex(
         /^[a-z][A-Za-z0-9]*$/,
-        'Checklist item key must start with a lowercase letter and use only letters and numbers.',
+        t('templates.validation.itemKeyPattern'),
       ),
     label: z
       .string()
       .trim()
-      .min(1, 'Checklist item label is required.')
-      .max(160, 'Checklist item label cannot exceed 160 characters.'),
+      .min(1, t('templates.validation.itemLabelRequired'))
+      .max(160, t('templates.validation.itemLabelMax')),
     itemType: z.enum(checklistItemTypes, {
-      message: 'Checklist item type is required.',
+      message: t('templates.validation.itemTypeRequired'),
     }),
     displayOrder: z.coerce
       .number()
-      .int('Checklist item display order must be a whole number.')
-      .min(1, 'Checklist item display order must be greater than zero.'),
+      .int(t('templates.validation.itemDisplayOrderWholeNumber'))
+      .min(1, t('templates.validation.itemDisplayOrderPositive')),
     isRequired: z.boolean(),
     isActive: z.boolean(),
-    helpText: z.string().max(500, 'Help text cannot exceed 500 characters.'),
+    helpText: z.string().max(500, t('templates.validation.helpTextMax')),
     isCritical: z.boolean(),
     requiresCommentOnFailure: z.boolean(),
     requiresPhotoOnFailure: z.boolean(),
     minimumValue: z.string(),
     maximumValue: z.string(),
-    options: z.array(optionSchema),
+    options: z.array(createOptionSchema(t)),
   })
   .superRefine((values, context) => {
     if (values.itemType === 'select') {
       if (values.options.length === 0) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Select checklist items must define at least one option.',
+          message: t('templates.validation.selectRequiresOption'),
           path: ['options'],
         })
       }
     } else if (values.options.length > 0) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Only select checklist items can define options.',
+        message: t('templates.validation.onlySelectCanDefineOptions'),
         path: ['options'],
       })
     }
@@ -75,7 +79,7 @@ const checklistItemSchema = z
     if (normalizedOptionValues.length !== new Set(normalizedOptionValues).size) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Option values must be unique.',
+        message: t('templates.validation.optionValuesUnique'),
         path: ['options'],
       })
     }
@@ -84,7 +88,7 @@ const checklistItemSchema = z
     if (optionDisplayOrders.length !== new Set(optionDisplayOrders).size) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Option display orders must be unique.',
+        message: t('templates.validation.optionDisplayOrdersUnique'),
         path: ['options'],
       })
     }
@@ -93,7 +97,7 @@ const checklistItemSchema = z
       if (values.minimumValue && Number.isNaN(Number(values.minimumValue))) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Minimum value must be numeric.',
+          message: t('templates.validation.minimumNumeric'),
           path: ['minimumValue'],
         })
       }
@@ -101,7 +105,7 @@ const checklistItemSchema = z
       if (values.maximumValue && Number.isNaN(Number(values.maximumValue))) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Maximum value must be numeric.',
+          message: t('templates.validation.maximumNumeric'),
           path: ['maximumValue'],
         })
       }
@@ -109,71 +113,73 @@ const checklistItemSchema = z
       if (values.minimumValue && values.maximumValue && Number(values.minimumValue) > Number(values.maximumValue)) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Minimum value cannot be greater than maximum value.',
+          message: t('templates.validation.minimumGreaterThanMaximum'),
           path: ['maximumValue'],
         })
       }
     } else if (values.minimumValue.trim() || values.maximumValue.trim()) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Only numeric checklist items can define minimum or maximum values.',
+        message: t('templates.validation.onlyNumericCanDefineBounds'),
         path: ['minimumValue'],
       })
     }
   })
 
-const sectionSchema = z
+const createSectionSchema = (t: SchemaTranslate) => z
   .object({
     id: z.string().uuid().optional(),
     title: z
       .string()
       .trim()
-      .min(1, 'Section title is required.')
-      .max(120, 'Section title cannot exceed 120 characters.'),
+      .min(1, t('templates.validation.sectionTitleRequired'))
+      .max(120, t('templates.validation.sectionTitleMax')),
     displayOrder: z.coerce
       .number()
-      .int('Section display order must be a whole number.')
-      .min(1, 'Section display order must be greater than zero.'),
+      .int(t('templates.validation.sectionDisplayOrderWholeNumber'))
+      .min(1, t('templates.validation.sectionDisplayOrderPositive')),
     isActive: z.boolean(),
-    checklistItems: z.array(checklistItemSchema),
+    checklistItems: z.array(createChecklistItemSchema(t)),
   })
   .superRefine((values, context) => {
     const itemDisplayOrders = values.checklistItems.map((item) => item.displayOrder)
     if (itemDisplayOrders.length !== new Set(itemDisplayOrders).size) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Checklist item display orders must be unique within a section.',
+        message: t('templates.validation.itemDisplayOrdersUniqueWithinSection'),
         path: ['checklistItems'],
       })
     }
   })
 
-export const preventiveTemplateFormSchema = z
+export const createPreventiveTemplateFormSchema = (
+  t: SchemaTranslate = defaultSchemaTranslate,
+) => z
   .object({
-    entityTypeId: z.string().uuid('Entity type is required.'),
+    entityTypeId: z.string().uuid(t('templates.validation.entityTypeRequired')),
     name: z
       .string()
       .trim()
-      .min(1, 'Template name is required.')
-      .max(120, 'Template name cannot exceed 120 characters.'),
+      .min(1, t('templates.validation.nameRequired'))
+      .max(120, t('templates.validation.nameMax')),
     code: z
       .string()
       .trim()
-      .min(1, 'Template code is required.')
-      .max(60, 'Template code cannot exceed 60 characters.')
+      .min(1, t('templates.validation.codeRequired'))
+      .max(60, t('templates.validation.codeMax'))
       .regex(
         /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-        'Template code must use lowercase letters, numbers, and hyphens only.',
+        t('templates.validation.codePattern'),
       ),
-    description: z.string().max(500, 'Description cannot exceed 500 characters.'),
-    sections: z.array(sectionSchema),
+    description: z.string().max(500, t('templates.validation.descriptionMax')),
+    sections: z.array(createSectionSchema(t)),
   })
   .superRefine((values, context) => {
     const sectionDisplayOrders = values.sections.map((section) => section.displayOrder)
     if (sectionDisplayOrders.length !== new Set(sectionDisplayOrders).size) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Section display orders must be unique.',
+        message: t('templates.validation.sectionDisplayOrdersUnique'),
         path: ['sections'],
       })
     }
@@ -185,10 +191,12 @@ export const preventiveTemplateFormSchema = z
     if (normalizedItemKeys.length !== new Set(normalizedItemKeys).size) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Checklist item keys must be unique within a template.',
+        message: t('templates.validation.itemKeysUniqueWithinTemplate'),
         path: ['sections'],
       })
     }
   })
+
+export const preventiveTemplateFormSchema = createPreventiveTemplateFormSchema()
 
 export type PreventiveTemplateFormValues = z.infer<typeof preventiveTemplateFormSchema>

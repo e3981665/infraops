@@ -10,4 +10,6 @@ public sealed class DevelopmentSeedOptions
     public string AdminEmail { get; init; } = "admin@infraops.local";
 
     public string AdminPassword { get; init; } = "DemoOnly-Admin-Local";
+
+    public string DemoContentLocale { get; init; } = "en-US";
 }

@@ -1,22 +1,29 @@
 import { z } from 'zod'
 import type { InventoryFormDefinition } from '@/modules/inventory/types/inventory'
+import {
+  defaultSchemaTranslate,
+  type SchemaTranslate,
+} from '@/shared/i18n/schema-translation'
 
 const wholeNumberPattern = /^-?\d+$/
 const decimalPattern = /^-?\d+(?:\.\d+)?$/
 const datePattern = /^\d{4}-\d{2}-\d{2}$/
 
-export function createInventoryItemFormSchema(formDefinition: InventoryFormDefinition | null) {
+export function createInventoryItemFormSchema(
+  formDefinition: InventoryFormDefinition | null,
+  t: SchemaTranslate = defaultSchemaTranslate,
+) {
   return z
     .object({
-      entityTypeId: z.string().uuid('Entity type is required.'),
-      regionId: z.string().uuid('Region is required.'),
-      siteId: z.string().uuid('Site is required.'),
+      entityTypeId: z.string().uuid(t('inventory.validation.entityTypeRequired')),
+      regionId: z.string().uuid(t('inventory.validation.regionRequired')),
+      siteId: z.string().uuid(t('inventory.validation.siteRequired')),
       displayName: z
         .string()
         .trim()
-        .min(1, 'Display name is required.')
-        .max(200, 'Display name cannot exceed 200 characters.'),
-      status: z.string().trim().min(1, 'Status is required.'),
+        .min(1, t('inventory.validation.displayNameRequired'))
+        .max(200, t('inventory.validation.displayNameMax')),
+      status: z.string().trim().min(1, t('inventory.validation.statusRequired')),
       installationDate: z.string().optional().or(z.literal('')),
       attributeValues: z.record(z.string()),
     })
@@ -33,7 +40,9 @@ export function createInventoryItemFormSchema(formDefinition: InventoryFormDefin
           if (fieldDefinition.isRequired) {
             context.addIssue({
               code: z.ZodIssueCode.custom,
-              message: `${fieldDefinition.displayLabel} is required.`,
+              message: t('inventory.validation.dynamicRequired', {
+                field: fieldDefinition.displayLabel,
+              }),
               path: ['attributeValues', fieldDefinition.fieldKey],
             })
           }
@@ -47,7 +56,9 @@ export function createInventoryItemFormSchema(formDefinition: InventoryFormDefin
         ) {
           context.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `${fieldDefinition.displayLabel} must be a whole number.`,
+            message: t('inventory.validation.dynamicWholeNumber', {
+              field: fieldDefinition.displayLabel,
+            }),
             path: ['attributeValues', fieldDefinition.fieldKey],
           })
         }
@@ -58,7 +69,9 @@ export function createInventoryItemFormSchema(formDefinition: InventoryFormDefin
         ) {
           context.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `${fieldDefinition.displayLabel} must be a decimal value.`,
+            message: t('inventory.validation.dynamicDecimal', {
+              field: fieldDefinition.displayLabel,
+            }),
             path: ['attributeValues', fieldDefinition.fieldKey],
           })
         }
@@ -70,7 +83,9 @@ export function createInventoryItemFormSchema(formDefinition: InventoryFormDefin
         ) {
           context.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `${fieldDefinition.displayLabel} must be true or false.`,
+            message: t('inventory.validation.dynamicBoolean', {
+              field: fieldDefinition.displayLabel,
+            }),
             path: ['attributeValues', fieldDefinition.fieldKey],
           })
         }
@@ -81,7 +96,9 @@ export function createInventoryItemFormSchema(formDefinition: InventoryFormDefin
         ) {
           context.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `${fieldDefinition.displayLabel} must use the yyyy-MM-dd format.`,
+            message: t('inventory.validation.dynamicDate', {
+              field: fieldDefinition.displayLabel,
+            }),
             path: ['attributeValues', fieldDefinition.fieldKey],
           })
         }
@@ -92,7 +109,9 @@ export function createInventoryItemFormSchema(formDefinition: InventoryFormDefin
         ) {
           context.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `${fieldDefinition.displayLabel} must use one of the configured options.`,
+            message: t('inventory.validation.dynamicSelectOption', {
+              field: fieldDefinition.displayLabel,
+            }),
             path: ['attributeValues', fieldDefinition.fieldKey],
           })
         }

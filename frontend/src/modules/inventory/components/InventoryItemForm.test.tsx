@@ -1,6 +1,6 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { InventoryItemForm } from '@/modules/inventory/components/InventoryItemForm'
 import { createDefaultInventoryItemFormValues } from '@/modules/inventory/utils/inventory-form-utils'
 import { renderWithProviders } from '@/app/test/render-with-providers'
@@ -83,6 +83,11 @@ const formDefinition: InventoryFormDefinition = {
   ],
 }
 
+afterEach(() => {
+  window.localStorage.clear()
+  vi.restoreAllMocks()
+})
+
 describe('InventoryItemForm', () => {
   it('should render dynamic fields from the selected entity type definition', () => {
     renderWithProviders(
@@ -162,5 +167,37 @@ describe('InventoryItemForm', () => {
     })
 
     expect(screen.getByText('Serial Number is required.')).toBeInTheDocument()
+  })
+
+  it('should localize validation messages when Portuguese is selected', async () => {
+    const user = userEvent.setup()
+    window.localStorage.setItem('infraops.locale', 'pt-BR')
+
+    renderWithProviders(
+      <InventoryItemForm
+        eyebrow="Gestão de inventário"
+        title="Cadastrar item de inventário"
+        description="Configure o item de infraestrutura."
+        submitLabel="Salvar item de inventário"
+        initialValues={{
+          ...createDefaultInventoryItemFormValues(metadata),
+          entityTypeId: metadata.entityTypes[0]!.id,
+          regionId: metadata.regions[0]!.id,
+          siteId: metadata.sites[0]!.id,
+        }}
+        metadata={metadata}
+        formDefinition={formDefinition}
+        isFormDefinitionLoading={false}
+        onSubmit={vi.fn().mockResolvedValue(undefined)}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: /salvar item de inventário/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText('O nome de exibição é obrigatório.')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText('Serial Number é obrigatório.')).toBeInTheDocument()
   })
 })

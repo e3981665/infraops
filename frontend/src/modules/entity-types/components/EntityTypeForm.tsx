@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   useFieldArray,
@@ -11,7 +11,7 @@ import {
 } from 'react-hook-form'
 import { ApiError } from '@/shared/api/http-client'
 import {
-  entityTypeFormSchema,
+  createEntityTypeFormSchema,
   type EntityTypeFormValues,
 } from '@/modules/entity-types/schemas/entity-type-form-schema'
 import {
@@ -51,6 +51,7 @@ export function EntityTypeForm({
 }: EntityTypeFormProps) {
   const { t } = useTranslation()
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const entityTypeFormSchema = useMemo(() => createEntityTypeFormSchema(t), [t])
   const {
     control,
     handleSubmit,

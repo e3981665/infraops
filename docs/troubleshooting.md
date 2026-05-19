@@ -46,6 +46,16 @@ docker compose -f .\compose.dev.yml down -v
 docker compose -f .\compose.dev.yml up -d --build
 ```
 
+To seed Portuguese business labels for a Brazil-focused demo, set the locale before reseeding:
+
+```powershell
+$env:INFRAOPS_DEMO_CONTENT_LOCALE = "pt-BR"
+docker compose -f .\compose.dev.yml down -v
+docker compose -f .\compose.dev.yml up -d --build
+```
+
+The setting only affects newly seeded demo data. Existing PostgreSQL volumes keep the labels they already contain.
+
 ## Run Tests
 
 Backend through Docker:
@@ -107,6 +117,7 @@ Common Docker variables:
 | `INFRAOPS_JWT_SIGNING_KEY` | Development JWT signing key override |
 | `INFRAOPS_ADMIN_EMAIL` | Development admin email override |
 | `INFRAOPS_ADMIN_PASSWORD` | Development admin password override |
+| `INFRAOPS_DEMO_CONTENT_LOCALE` | Optional demo business-label locale. Use `pt-BR` before first seed for Portuguese labels |
 | `VITE_API_BASE_URL` | Frontend API base URL |
 
 Never commit real production connection strings, signing keys, or passwords.

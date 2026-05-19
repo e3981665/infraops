@@ -9,6 +9,7 @@ This folder contains the supporting architecture and workflow documentation for 
 - [Execution and Validation Flow](execution-flow.md) explains the technician and validator workflows from inventory item selection through approval, rejection, or rework request.
 - [Observability](observability.md) explains structured logging, correlation IDs, error responses, and future OpenTelemetry readiness.
 - [Security](security.md) explains authentication, authorization, refresh tokens, security headers, CORS, rate limiting, dependency scanning, and production hardening.
+- [Deployment Notes](deployment.md) explains recommended hosting topology, production configuration, CORS, HTTPS, and secret replacement.
 - [Troubleshooting](troubleshooting.md) lists Docker logs, reset commands, tests, E2E commands, and common local issues.
 - [Publishing Checklist](publishing-checklist.md) lists final repository, screenshot, validation, deployment, and portfolio checks.
 - [Screenshots](screenshots/README.md) lists the expected portfolio screenshot captures.
@@ -21,4 +22,4 @@ For a quick technical review:
 2. Review [Architecture](architecture.md) for dependency direction and deployment topology.
 3. Review [Domain Model](domain-model.md) for the dynamic entity and execution snapshot decisions.
 4. Review [Execution and Validation Flow](execution-flow.md) for the core workflow state transitions.
-5. Review [Security](security.md), [Observability](observability.md), and [Troubleshooting](troubleshooting.md) for hardening, operating, and debugging the Docker demo.
+5. Review [Security](security.md), [Deployment Notes](deployment.md), [Observability](observability.md), and [Troubleshooting](troubleshooting.md) for hardening, deployment planning, operating, and debugging the Docker demo.

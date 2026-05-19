@@ -43,16 +43,23 @@ More detail is available in [docs/index.md](docs/index.md), including the [secur
 
 ## Screenshots
 
-The repository includes screenshot placeholders and capture guidance under [docs/screenshots](docs/screenshots/README.md). Recommended final assets:
+Captured from the Docker demo stack with seeded data. Re-capture guidance is available in [docs/screenshots](docs/screenshots/README.md).
 
-- [Dashboard light / English](docs/screenshots/dashboard-light-en.png)
-- [Dashboard dark / English](docs/screenshots/dashboard-dark-en.png)
-- [Dashboard Portuguese](docs/screenshots/dashboard-pt-br.png)
-- [Entity type builder](docs/screenshots/entity-type-builder.png)
-- [Inventory form](docs/screenshots/inventory-form.png)
-- [Preventive template builder](docs/screenshots/preventive-template-builder.png)
-- [Preventive execution](docs/screenshots/preventive-execution.png)
-- [Validation queue](docs/screenshots/validation-queue.png)
+| Operational dashboard | Dark mode dashboard |
+| --- | --- |
+| ![InfraOps dashboard in light theme](docs/screenshots/dashboard-light-en.png) | ![InfraOps dashboard in dark theme](docs/screenshots/dashboard-dark-en.png) |
+
+| Portuguese dashboard | Entity type builder |
+| --- | --- |
+| ![InfraOps dashboard in Portuguese](docs/screenshots/dashboard-pt-br.png) | ![Dynamic entity type builder](docs/screenshots/entity-type-builder.png) |
+
+| Inventory form | Preventive template builder |
+| --- | --- |
+| ![Inventory form with dynamic fields](docs/screenshots/inventory-form.png) | ![Preventive template checklist builder](docs/screenshots/preventive-template-builder.png) |
+
+| Preventive execution | Validation queue |
+| --- | --- |
+| ![Preventive execution checklist](docs/screenshots/preventive-execution.png) | ![Preventive validation queue](docs/screenshots/validation-queue.png) |
 
 ## Demo Walkthrough
 
@@ -112,6 +119,16 @@ docker compose -f .\compose.dev.yml down -v
 ```
 
 The API applies EF Core migrations and idempotent development seed data on startup.
+
+### Optional Portuguese Demo Seed Content
+
+Seeded business data is stored as normal editable data. The default seed remains English for CI stability and bilingual portfolio review. For a Brazil-focused local demo, set `INFRAOPS_DEMO_CONTENT_LOCALE=pt-BR` before the first startup, then reset the database volume so the API can reseed Portuguese template, checklist, field, option, and validation-history labels.
+
+```powershell
+$env:INFRAOPS_DEMO_CONTENT_LOCALE = "pt-BR"
+docker compose -f .\compose.dev.yml down -v
+docker compose -f .\compose.dev.yml up -d --build
+```
 
 API responses include `X-Correlation-ID`. Error responses also include `correlationId` so a UI error can be matched to API logs. See [docs/observability.md](docs/observability.md) and [docs/troubleshooting.md](docs/troubleshooting.md).
 
@@ -266,6 +283,8 @@ Tooling:
 - [Domain Model](docs/domain-model.md)
 - [Execution and Validation Flow](docs/execution-flow.md)
 - [Observability](docs/observability.md)
+- [Security](docs/security.md)
+- [Deployment Notes](docs/deployment.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [MCP Database Server](tools/mcp-db-server/README.md)
 
@@ -290,6 +309,7 @@ npm start
 - `.env.example` contains development-only Docker defaults.
 - `frontend/.env.example` contains the frontend API URL default.
 - `tools/mcp-db-server/.env.example` contains local MCP database inspection defaults.
+- `INFRAOPS_DEMO_CONTENT_LOCALE=pt-BR` can be set before a fresh seed for Portuguese demo business labels.
 
 Never commit real environment files, production connection strings, production JWT signing keys, or private credentials.
 

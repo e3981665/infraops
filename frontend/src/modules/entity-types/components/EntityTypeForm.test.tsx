@@ -9,6 +9,7 @@ import {
 import { renderWithProviders } from '@/app/test/render-with-providers'
 
 afterEach(() => {
+  window.localStorage.clear()
   vi.restoreAllMocks()
 })
 
@@ -32,6 +33,28 @@ describe('EntityTypeForm', () => {
     expect(screen.getByText('Entity type name is required.')).toBeInTheDocument()
     expect(screen.getByText('Entity type code is required.')).toBeInTheDocument()
     expect(screen.getByText('Field key is required.')).toBeInTheDocument()
+  })
+
+  it('should localize validation messages when Portuguese is selected', async () => {
+    const user = userEvent.setup()
+    window.localStorage.setItem('infraops.locale', 'pt-BR')
+
+    renderWithProviders(
+      <EntityTypeForm
+        eyebrow="Administração de tipos de entidade"
+        title="Criar tipo de entidade"
+        description="Configure uma definição dinâmica."
+        submitLabel="Salvar tipo de entidade"
+        initialValues={createDefaultEntityTypeFormValues()}
+        onSubmit={vi.fn().mockResolvedValue(undefined)}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: /salvar tipo de entidade/i }))
+
+    expect(screen.getByText('O nome do tipo de entidade é obrigatório.')).toBeInTheDocument()
+    expect(screen.getByText('O código do tipo de entidade é obrigatório.')).toBeInTheDocument()
+    expect(screen.getByText('A chave do campo é obrigatória.')).toBeInTheDocument()
   })
 
   it('should show the options editor when the field type is select', async () => {

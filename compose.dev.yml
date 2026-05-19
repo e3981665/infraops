@@ -40,6 +40,7 @@ services:
       DevelopmentSeed__AdminFullName: ${INFRAOPS_ADMIN_FULL_NAME:-InfraOps Administrator}
       DevelopmentSeed__AdminEmail: ${INFRAOPS_ADMIN_EMAIL:-admin@infraops.local}
       DevelopmentSeed__AdminPassword: ${INFRAOPS_ADMIN_PASSWORD:-DemoOnly-Admin-Local}
+      DevelopmentSeed__DemoContentLocale: ${INFRAOPS_DEMO_CONTENT_LOCALE:-en-US}
     ports:
       - "${API_PORT:-8080}:8080"
     volumes:

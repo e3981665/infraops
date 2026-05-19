@@ -124,6 +124,34 @@ export const translations = {
     'entity.form.optionValue': 'Option value',
     'entity.form.optionLabel': 'Option label',
     'entity.form.removeOption': 'Remove option',
+    'entity.validation.nameRequired': 'Entity type name is required.',
+    'entity.validation.nameMax': 'Entity type name cannot exceed 100 characters.',
+    'entity.validation.codeRequired': 'Entity type code is required.',
+    'entity.validation.codeMax': 'Entity type code cannot exceed 60 characters.',
+    'entity.validation.codePattern':
+      'Entity type code must use lowercase letters, numbers, and hyphens only.',
+    'entity.validation.descriptionMax': 'Description cannot exceed 500 characters.',
+    'entity.validation.fieldKeyRequired': 'Field key is required.',
+    'entity.validation.fieldKeyMax': 'Field key cannot exceed 80 characters.',
+    'entity.validation.fieldKeyPattern':
+      'Field key must start with a lowercase letter and use only letters and numbers.',
+    'entity.validation.displayLabelRequired': 'Display label is required.',
+    'entity.validation.displayLabelMax': 'Display label cannot exceed 120 characters.',
+    'entity.validation.displayOrderWholeNumber': 'Display order must be a whole number.',
+    'entity.validation.displayOrderPositive': 'Display order must be greater than zero.',
+    'entity.validation.placeholderMax': 'Placeholder cannot exceed 200 characters.',
+    'entity.validation.helpTextMax': 'Help text cannot exceed 500 characters.',
+    'entity.validation.selectRequiresOption': 'Select fields require at least one option.',
+    'entity.validation.onlySelectCanDefineOptions': 'Only select fields can define options.',
+    'entity.validation.optionValueRequired': 'Option value is required.',
+    'entity.validation.optionValueMax': 'Option value cannot exceed 80 characters.',
+    'entity.validation.optionLabelRequired': 'Option label is required.',
+    'entity.validation.optionLabelMax': 'Option label cannot exceed 120 characters.',
+    'entity.validation.optionValuesUnique': 'Option values must be unique within a field.',
+    'entity.validation.optionDisplayOrderUnique':
+      'Option display order must be unique within a field.',
+    'entity.validation.fieldKeysUnique': 'Field keys must be unique within an entity type.',
+    'entity.validation.displayOrderUnique': 'Display order must be unique within an entity type.',
     'entity.detail.displayOrderWithValue': 'Display order {{value}}',
     'entity.detail.administration': 'Entity type administration',
     'entity.detail.unresolvedTitle': 'Entity type could not be resolved.',
@@ -198,6 +226,19 @@ export const translations = {
     'inventory.form.true': 'True',
     'inventory.form.false': 'False',
     'inventory.form.selectOption': 'Select an option',
+    'inventory.validation.entityTypeRequired': 'Entity type is required.',
+    'inventory.validation.regionRequired': 'Region is required.',
+    'inventory.validation.siteRequired': 'Site is required.',
+    'inventory.validation.displayNameRequired': 'Display name is required.',
+    'inventory.validation.displayNameMax': 'Display name cannot exceed 200 characters.',
+    'inventory.validation.statusRequired': 'Status is required.',
+    'inventory.validation.dynamicRequired': '{{field}} is required.',
+    'inventory.validation.dynamicWholeNumber': '{{field}} must be a whole number.',
+    'inventory.validation.dynamicDecimal': '{{field}} must be a decimal value.',
+    'inventory.validation.dynamicBoolean': '{{field}} must be true or false.',
+    'inventory.validation.dynamicDate': '{{field}} must use the yyyy-MM-dd format.',
+    'inventory.validation.dynamicSelectOption':
+      '{{field}} must use one of the configured options.',
     'templates.form.saveFailed': 'InfraOps could not save the preventive template.',
     'templates.form.metadata': 'Template metadata',
     'templates.form.metadataHelp':
@@ -250,6 +291,57 @@ export const translations = {
     'templates.options.value': 'Option value',
     'templates.options.label': 'Option label',
     'templates.options.remove': 'Remove option',
+    'templates.validation.entityTypeRequired': 'Entity type is required.',
+    'templates.validation.nameRequired': 'Template name is required.',
+    'templates.validation.nameMax': 'Template name cannot exceed 120 characters.',
+    'templates.validation.codeRequired': 'Template code is required.',
+    'templates.validation.codeMax': 'Template code cannot exceed 60 characters.',
+    'templates.validation.codePattern':
+      'Template code must use lowercase letters, numbers, and hyphens only.',
+    'templates.validation.descriptionMax': 'Description cannot exceed 500 characters.',
+    'templates.validation.sectionTitleRequired': 'Section title is required.',
+    'templates.validation.sectionTitleMax': 'Section title cannot exceed 120 characters.',
+    'templates.validation.sectionDisplayOrderWholeNumber':
+      'Section display order must be a whole number.',
+    'templates.validation.sectionDisplayOrderPositive':
+      'Section display order must be greater than zero.',
+    'templates.validation.sectionDisplayOrdersUnique': 'Section display orders must be unique.',
+    'templates.validation.itemKeyRequired': 'Checklist item key is required.',
+    'templates.validation.itemKeyMax': 'Checklist item key cannot exceed 80 characters.',
+    'templates.validation.itemKeyPattern':
+      'Checklist item key must start with a lowercase letter and use only letters and numbers.',
+    'templates.validation.itemLabelRequired': 'Checklist item label is required.',
+    'templates.validation.itemLabelMax': 'Checklist item label cannot exceed 160 characters.',
+    'templates.validation.itemTypeRequired': 'Checklist item type is required.',
+    'templates.validation.itemDisplayOrderWholeNumber':
+      'Checklist item display order must be a whole number.',
+    'templates.validation.itemDisplayOrderPositive':
+      'Checklist item display order must be greater than zero.',
+    'templates.validation.itemDisplayOrdersUniqueWithinSection':
+      'Checklist item display orders must be unique within a section.',
+    'templates.validation.itemKeysUniqueWithinTemplate':
+      'Checklist item keys must be unique within a template.',
+    'templates.validation.helpTextMax': 'Help text cannot exceed 500 characters.',
+    'templates.validation.selectRequiresOption':
+      'Select checklist items must define at least one option.',
+    'templates.validation.onlySelectCanDefineOptions':
+      'Only select checklist items can define options.',
+    'templates.validation.optionValueRequired': 'Option value is required.',
+    'templates.validation.optionValueMax': 'Option value cannot exceed 80 characters.',
+    'templates.validation.optionLabelRequired': 'Option label is required.',
+    'templates.validation.optionLabelMax': 'Option label cannot exceed 120 characters.',
+    'templates.validation.optionDisplayOrderWholeNumber':
+      'Option display order must be a whole number.',
+    'templates.validation.optionDisplayOrderPositive':
+      'Option display order must be greater than zero.',
+    'templates.validation.optionValuesUnique': 'Option values must be unique.',
+    'templates.validation.optionDisplayOrdersUnique': 'Option display orders must be unique.',
+    'templates.validation.minimumNumeric': 'Minimum value must be numeric.',
+    'templates.validation.maximumNumeric': 'Maximum value must be numeric.',
+    'templates.validation.minimumGreaterThanMaximum':
+      'Minimum value cannot be greater than maximum value.',
+    'templates.validation.onlyNumericCanDefineBounds':
+      'Only numeric checklist items can define minimum or maximum values.',
     'templates.detail.administration': 'Preventive template administration',
     'templates.detail.unresolvedTitle': 'Preventive template could not be resolved.',
     'templates.detail.unresolvedHelp':
@@ -355,6 +447,8 @@ export const translations = {
     'login.signIn': 'Sign in',
     'login.invalidCredentials': 'The email or password is invalid.',
     'login.failed': 'InfraOps could not complete the sign-in request.',
+    'login.validation.email': 'Enter a valid email address.',
+    'login.validation.passwordMin': 'Password must contain at least 8 characters.',
     'login.devUser': 'Development user:',
     'login.summaryEyebrow': 'Enterprise operations',
     'login.summaryTitle': 'Configurable infrastructure maintenance workspace.',
@@ -506,6 +600,8 @@ export const translations = {
     'validations.reasonPlaceholder': 'Required reason for the audit trail.',
     'validations.rejectionRequired': 'Rejection reason is required.',
     'validations.reworkRequired': 'Rework reason is required.',
+    'validations.commentMax': 'Comment cannot exceed 2000 characters.',
+    'validations.reasonMax': 'Reason cannot exceed 2000 characters.',
     'validations.actionFailed': 'InfraOps could not complete the validation action.',
     'validations.approvedSuccess': 'Execution approved.',
     'validations.rejectedSuccess': 'Execution rejected.',
@@ -637,6 +733,35 @@ export const translations = {
     'entity.form.optionValue': 'Valor da opção',
     'entity.form.optionLabel': 'Rótulo da opção',
     'entity.form.removeOption': 'Remover opção',
+    'entity.validation.nameRequired': 'O nome do tipo de entidade é obrigatório.',
+    'entity.validation.nameMax': 'O nome do tipo de entidade não pode exceder 100 caracteres.',
+    'entity.validation.codeRequired': 'O código do tipo de entidade é obrigatório.',
+    'entity.validation.codeMax': 'O código do tipo de entidade não pode exceder 60 caracteres.',
+    'entity.validation.codePattern':
+      'O código do tipo de entidade deve usar letras minúsculas, números e hífens.',
+    'entity.validation.descriptionMax': 'A descrição não pode exceder 500 caracteres.',
+    'entity.validation.fieldKeyRequired': 'A chave do campo é obrigatória.',
+    'entity.validation.fieldKeyMax': 'A chave do campo não pode exceder 80 caracteres.',
+    'entity.validation.fieldKeyPattern':
+      'A chave do campo deve começar com letra minúscula e usar apenas letras e números.',
+    'entity.validation.displayLabelRequired': 'O rótulo de exibição é obrigatório.',
+    'entity.validation.displayLabelMax': 'O rótulo de exibição não pode exceder 120 caracteres.',
+    'entity.validation.displayOrderWholeNumber': 'A ordem de exibição deve ser um número inteiro.',
+    'entity.validation.displayOrderPositive': 'A ordem de exibição deve ser maior que zero.',
+    'entity.validation.placeholderMax': 'O placeholder não pode exceder 200 caracteres.',
+    'entity.validation.helpTextMax': 'O texto de ajuda não pode exceder 500 caracteres.',
+    'entity.validation.selectRequiresOption': 'Campos de seleção exigem pelo menos uma opção.',
+    'entity.validation.onlySelectCanDefineOptions': 'Apenas campos de seleção podem definir opções.',
+    'entity.validation.optionValueRequired': 'O valor da opção é obrigatório.',
+    'entity.validation.optionValueMax': 'O valor da opção não pode exceder 80 caracteres.',
+    'entity.validation.optionLabelRequired': 'O rótulo da opção é obrigatório.',
+    'entity.validation.optionLabelMax': 'O rótulo da opção não pode exceder 120 caracteres.',
+    'entity.validation.optionValuesUnique': 'Os valores das opções devem ser únicos no campo.',
+    'entity.validation.optionDisplayOrderUnique':
+      'A ordem de exibição das opções deve ser única no campo.',
+    'entity.validation.fieldKeysUnique': 'As chaves dos campos devem ser únicas no tipo de entidade.',
+    'entity.validation.displayOrderUnique':
+      'A ordem de exibição deve ser única no tipo de entidade.',
     'entity.detail.displayOrderWithValue': 'Ordem de exibição {{value}}',
     'entity.detail.administration': 'Administração de tipos de entidade',
     'entity.detail.unresolvedTitle': 'O tipo de entidade não pôde ser resolvido.',
@@ -711,6 +836,19 @@ export const translations = {
     'inventory.form.true': 'Verdadeiro',
     'inventory.form.false': 'Falso',
     'inventory.form.selectOption': 'Selecione uma opção',
+    'inventory.validation.entityTypeRequired': 'O tipo de entidade é obrigatório.',
+    'inventory.validation.regionRequired': 'A região é obrigatória.',
+    'inventory.validation.siteRequired': 'O site é obrigatório.',
+    'inventory.validation.displayNameRequired': 'O nome de exibição é obrigatório.',
+    'inventory.validation.displayNameMax': 'O nome de exibição não pode exceder 200 caracteres.',
+    'inventory.validation.statusRequired': 'O status é obrigatório.',
+    'inventory.validation.dynamicRequired': '{{field}} é obrigatório.',
+    'inventory.validation.dynamicWholeNumber': '{{field}} deve ser um número inteiro.',
+    'inventory.validation.dynamicDecimal': '{{field}} deve ser um valor decimal.',
+    'inventory.validation.dynamicBoolean': '{{field}} deve ser verdadeiro ou falso.',
+    'inventory.validation.dynamicDate': '{{field}} deve usar o formato yyyy-MM-dd.',
+    'inventory.validation.dynamicSelectOption':
+      '{{field}} deve usar uma das opções configuradas.',
     'templates.form.saveFailed': 'O InfraOps não conseguiu salvar o modelo de preventiva.',
     'templates.form.metadata': 'Metadados do modelo',
     'templates.form.metadataHelp':
@@ -763,6 +901,60 @@ export const translations = {
     'templates.options.value': 'Valor da opção',
     'templates.options.label': 'Rótulo da opção',
     'templates.options.remove': 'Remover opção',
+    'templates.validation.entityTypeRequired': 'O tipo de entidade é obrigatório.',
+    'templates.validation.nameRequired': 'O nome do modelo é obrigatório.',
+    'templates.validation.nameMax': 'O nome do modelo não pode exceder 120 caracteres.',
+    'templates.validation.codeRequired': 'O código do modelo é obrigatório.',
+    'templates.validation.codeMax': 'O código do modelo não pode exceder 60 caracteres.',
+    'templates.validation.codePattern':
+      'O código do modelo deve usar letras minúsculas, números e hífens.',
+    'templates.validation.descriptionMax': 'A descrição não pode exceder 500 caracteres.',
+    'templates.validation.sectionTitleRequired': 'O título da seção é obrigatório.',
+    'templates.validation.sectionTitleMax': 'O título da seção não pode exceder 120 caracteres.',
+    'templates.validation.sectionDisplayOrderWholeNumber':
+      'A ordem de exibição da seção deve ser um número inteiro.',
+    'templates.validation.sectionDisplayOrderPositive':
+      'A ordem de exibição da seção deve ser maior que zero.',
+    'templates.validation.sectionDisplayOrdersUnique':
+      'As ordens de exibição das seções devem ser únicas.',
+    'templates.validation.itemKeyRequired': 'A chave do item do checklist é obrigatória.',
+    'templates.validation.itemKeyMax': 'A chave do item do checklist não pode exceder 80 caracteres.',
+    'templates.validation.itemKeyPattern':
+      'A chave do item deve começar com letra minúscula e usar apenas letras e números.',
+    'templates.validation.itemLabelRequired': 'O rótulo do item do checklist é obrigatório.',
+    'templates.validation.itemLabelMax':
+      'O rótulo do item do checklist não pode exceder 160 caracteres.',
+    'templates.validation.itemTypeRequired': 'O tipo do item do checklist é obrigatório.',
+    'templates.validation.itemDisplayOrderWholeNumber':
+      'A ordem de exibição do item deve ser um número inteiro.',
+    'templates.validation.itemDisplayOrderPositive':
+      'A ordem de exibição do item deve ser maior que zero.',
+    'templates.validation.itemDisplayOrdersUniqueWithinSection':
+      'As ordens de exibição dos itens devem ser únicas na seção.',
+    'templates.validation.itemKeysUniqueWithinTemplate':
+      'As chaves dos itens devem ser únicas no modelo.',
+    'templates.validation.helpTextMax': 'O texto de ajuda não pode exceder 500 caracteres.',
+    'templates.validation.selectRequiresOption':
+      'Itens de seleção devem definir pelo menos uma opção.',
+    'templates.validation.onlySelectCanDefineOptions':
+      'Apenas itens de seleção podem definir opções.',
+    'templates.validation.optionValueRequired': 'O valor da opção é obrigatório.',
+    'templates.validation.optionValueMax': 'O valor da opção não pode exceder 80 caracteres.',
+    'templates.validation.optionLabelRequired': 'O rótulo da opção é obrigatório.',
+    'templates.validation.optionLabelMax': 'O rótulo da opção não pode exceder 120 caracteres.',
+    'templates.validation.optionDisplayOrderWholeNumber':
+      'A ordem de exibição da opção deve ser um número inteiro.',
+    'templates.validation.optionDisplayOrderPositive':
+      'A ordem de exibição da opção deve ser maior que zero.',
+    'templates.validation.optionValuesUnique': 'Os valores das opções devem ser únicos.',
+    'templates.validation.optionDisplayOrdersUnique':
+      'As ordens de exibição das opções devem ser únicas.',
+    'templates.validation.minimumNumeric': 'O valor mínimo deve ser numérico.',
+    'templates.validation.maximumNumeric': 'O valor máximo deve ser numérico.',
+    'templates.validation.minimumGreaterThanMaximum':
+      'O valor mínimo não pode ser maior que o valor máximo.',
+    'templates.validation.onlyNumericCanDefineBounds':
+      'Apenas itens numéricos podem definir valores mínimos ou máximos.',
     'templates.detail.administration': 'Administração de modelos preventivos',
     'templates.detail.unresolvedTitle': 'O modelo de preventiva não pôde ser resolvido.',
     'templates.detail.unresolvedHelp':
@@ -868,6 +1060,8 @@ export const translations = {
     'login.signIn': 'Entrar',
     'login.invalidCredentials': 'O email ou a senha são inválidos.',
     'login.failed': 'O InfraOps não conseguiu concluir o login.',
+    'login.validation.email': 'Informe um endereço de email válido.',
+    'login.validation.passwordMin': 'A senha deve conter pelo menos 8 caracteres.',
     'login.devUser': 'Usuário de desenvolvimento:',
     'login.summaryEyebrow': 'Operações empresariais',
     'login.summaryTitle': 'Área configurável para manutenção de infraestrutura.',
@@ -1019,6 +1213,8 @@ export const translations = {
     'validations.reasonPlaceholder': 'Motivo obrigatório para a trilha de auditoria.',
     'validations.rejectionRequired': 'O motivo da rejeição é obrigatório.',
     'validations.reworkRequired': 'O motivo da refação é obrigatório.',
+    'validations.commentMax': 'O comentário não pode exceder 2000 caracteres.',
+    'validations.reasonMax': 'O motivo não pode exceder 2000 caracteres.',
     'validations.actionFailed': 'O InfraOps não conseguiu concluir a ação de validação.',
     'validations.approvedSuccess': 'Execução aprovada.',
     'validations.rejectedSuccess': 'Execução rejeitada.',

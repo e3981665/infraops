@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch, type UseFormSetError } from 'react-hook-form'
 import { ApiError } from '@/shared/api/http-client'
@@ -47,6 +47,10 @@ export function InventoryItemForm({
 }: InventoryItemFormProps) {
   const { t } = useTranslation()
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const inventoryItemFormSchema = useMemo(
+    () => createInventoryItemFormSchema(formDefinition, t),
+    [formDefinition, t],
+  )
   const {
     control,
     getValues,
@@ -57,7 +61,7 @@ export function InventoryItemForm({
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<InventoryItemFormValues>({
-    resolver: zodResolver(createInventoryItemFormSchema(formDefinition)),
+    resolver: zodResolver(inventoryItemFormSchema),
     defaultValues: initialValues,
   })
 

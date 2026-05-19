@@ -1,6 +1,6 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { PreventiveTemplateForm } from '@/modules/preventive-templates/components/PreventiveTemplateForm'
 import {
   createDefaultPreventiveTemplateFormValues,
@@ -15,6 +15,11 @@ const entityTypeOptions = [
     name: 'UPS',
   },
 ]
+
+afterEach(() => {
+  window.localStorage.clear()
+  vi.restoreAllMocks()
+})
 
 describe('PreventiveTemplateForm', () => {
   it('should validate required fields before submission', async () => {
@@ -45,6 +50,36 @@ describe('PreventiveTemplateForm', () => {
     expect(screen.getByText('Template code is required.')).toBeInTheDocument()
     expect(screen.getByText('Section title is required.')).toBeInTheDocument()
     expect(screen.getByText('Checklist item key is required.')).toBeInTheDocument()
+  })
+
+  it('should localize validation messages when Portuguese is selected', async () => {
+    const user = userEvent.setup()
+    window.localStorage.setItem('infraops.locale', 'pt-BR')
+
+    renderWithProviders(
+      <PreventiveTemplateForm
+        eyebrow="Administração de modelos preventivos"
+        title="Criar modelo de preventiva"
+        description="Configure um modelo preventivo."
+        submitLabel="Salvar modelo de preventiva"
+        initialValues={{
+          ...createDefaultPreventiveTemplateFormValues({ entityTypes: entityTypeOptions }),
+          entityTypeId: '',
+        }}
+        entityTypeOptions={entityTypeOptions}
+        onSubmit={vi.fn().mockResolvedValue(undefined)}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: /salvar modelo de preventiva/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText('O tipo de entidade é obrigatório.')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText('O nome do modelo é obrigatório.')).toBeInTheDocument()
+    expect(screen.getByText('O título da seção é obrigatório.')).toBeInTheDocument()
+    expect(screen.getByText('A chave do item do checklist é obrigatória.')).toBeInTheDocument()
   })
 
   it('should show the options editor when the item type is select', async () => {
