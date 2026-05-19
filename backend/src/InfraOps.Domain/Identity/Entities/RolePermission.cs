@@ -1,0 +1,24 @@
+namespace InfraOps.Domain.Identity.Entities;
+
+public sealed class RolePermission
+{
+    private RolePermission()
+    {
+    }
+
+    public RolePermission(Guid roleId, Guid permissionId, Role role, Permission permission)
+    {
+        RoleId = roleId;
+        PermissionId = permissionId;
+        Role = role;
+        Permission = permission;
+    }
+
+    public Guid RoleId { get; private set; }
+
+    public Guid PermissionId { get; private set; }
+
+    public Role Role { get; private set; } = null!;
+
+    public Permission Permission { get; private set; } = null!;
+}

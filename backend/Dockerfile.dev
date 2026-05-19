@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+WORKDIR /workspace/backend
+
+ENV ASPNETCORE_ENVIRONMENT=Development \
+    ASPNETCORE_URLS=http://0.0.0.0:8080 \
+    DOTNET_USE_POLLING_FILE_WATCHER=1 \
+    DOTNET_WATCH_RESTART_ON_RUDE_EDIT=1 \
+    DOTNET_WATCH_SUPPRESS_EMOJIS=1 \
+    NUGET_PACKAGES=/root/.nuget/packages
+
+COPY InfraOps.sln ./
+COPY src/InfraOps.Api/InfraOps.Api.csproj src/InfraOps.Api/
+COPY src/InfraOps.Application/InfraOps.Application.csproj src/InfraOps.Application/
+COPY src/InfraOps.Domain/InfraOps.Domain.csproj src/InfraOps.Domain/
+COPY src/InfraOps.Infrastructure/InfraOps.Infrastructure.csproj src/InfraOps.Infrastructure/
+COPY tests/InfraOps.Api.Tests/InfraOps.Api.Tests.csproj tests/InfraOps.Api.Tests/
+COPY tests/InfraOps.Application.Tests/InfraOps.Application.Tests.csproj tests/InfraOps.Application.Tests/
+COPY tests/InfraOps.Domain.Tests/InfraOps.Domain.Tests.csproj tests/InfraOps.Domain.Tests/
+COPY tests/InfraOps.Infrastructure.Tests/InfraOps.Infrastructure.Tests.csproj tests/InfraOps.Infrastructure.Tests/
+
+RUN dotnet restore InfraOps.sln
+
+CMD ["sh", "-c", "dotnet restore InfraOps.sln && dotnet watch --project src/InfraOps.Api run --urls=http://0.0.0.0:8080"]

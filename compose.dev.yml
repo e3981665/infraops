@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: infraops-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-infraops}
+      POSTGRES_USER: ${POSTGRES_USER:-infraops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-infraops}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - infraops-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-infraops} -d ${POSTGRES_DB:-infraops}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: infraops-api
+    working_dir: /workspace/backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      DOTNET_USE_POLLING_FILE_WATCHER: "1"
+      DOTNET_WATCH_RESTART_ON_RUDE_EDIT: "1"
+      DOTNET_WATCH_SUPPRESS_EMOJIS: "1"
+      ConnectionStrings__InfraOps: Host=postgres;Port=5432;Database=${POSTGRES_DB:-infraops};Username=${POSTGRES_USER:-infraops};Password=${POSTGRES_PASSWORD:-infraops}
+      Authentication__Issuer: InfraOps.Dev
+      Authentication__Audience: InfraOps.Client
+      Authentication__SigningKey: ${INFRAOPS_JWT_SIGNING_KEY:-InfraOps.Local.Development.Signing.Key.2026.Enterprise.Safe}
+      DevelopmentSeed__AdminFullName: ${INFRAOPS_ADMIN_FULL_NAME:-InfraOps Administrator}
+      DevelopmentSeed__AdminEmail: ${INFRAOPS_ADMIN_EMAIL:-admin@infraops.local}
+      DevelopmentSeed__AdminPassword: ${INFRAOPS_ADMIN_PASSWORD:-InfraOps.Admin!123}
+    ports:
+      - "${API_PORT:-8080}:8080"
+    volumes:
+      - ./backend:/workspace/backend
+      - infraops-nuget-packages:/root/.nuget/packages
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: infraops-frontend
+    working_dir: /workspace/frontend
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "300"
+      VITE_HOST: 0.0.0.0
+      VITE_PORT: "5173"
+      VITE_API_BASE_URL: http://localhost:${API_PORT:-8080}
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/workspace/frontend
+      - infraops-frontend-node-modules:/workspace/frontend/node_modules
+    depends_on:
+      api:
+        condition: service_started
+
+volumes:
+  infraops-postgres-data:
+  infraops-nuget-packages:
+  infraops-frontend-node-modules:

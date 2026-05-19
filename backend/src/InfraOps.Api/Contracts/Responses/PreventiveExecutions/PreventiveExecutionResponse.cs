@@ -1,0 +1,26 @@
+namespace InfraOps.Api.Contracts.Responses.PreventiveExecutions;
+
+public sealed record PreventiveExecutionResponse(
+    Guid Id,
+    Guid InventoryItemId,
+    string InventoryItemDisplayName,
+    Guid PreventiveTemplateId,
+    string PreventiveTemplateName,
+    string PreventiveTemplateCode,
+    Guid EntityTypeId,
+    string EntityTypeName,
+    string EntityTypeCode,
+    Guid RegionId,
+    string RegionName,
+    Guid SiteId,
+    string SiteName,
+    string Status,
+    Guid CreatedBy,
+    Guid UpdatedBy,
+    Guid? SubmittedBy,
+    DateTimeOffset CreatedAtUtc,
+    DateTimeOffset UpdatedAtUtc,
+    DateTimeOffset? SubmittedAtUtc,
+    IReadOnlyCollection<PreventiveExecutionTemplateSectionResponse> TemplateSections,
+    IReadOnlyCollection<PreventiveExecutionAnswerResponse> Answers,
+    IReadOnlyCollection<PreventiveValidationRecordResponse> ValidationHistory);

@@ -1,0 +1,18 @@
+{
+  "name": "infraops-mcp-db-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Safe local MCP server for InfraOps PostgreSQL schema inspection.",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "pg": "^8.20.0",
+    "zod": "^4.1.12"
+  }
+}

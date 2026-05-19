@@ -1,0 +1,5 @@
+[mcp_servers.infraops_db]
+command = "node"
+args = ["tools/mcp-db-server/src/index.js"]
+cwd = "."
+env = { DATABASE_URL = "postgresql://infraops:infraops@localhost:5432/infraops", DB_SCHEMA = "public", MCP_DB_MAX_RESULT_ROWS = "50", MCP_DB_STATEMENT_TIMEOUT_MS = "5000" }

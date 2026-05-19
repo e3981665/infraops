@@ -1,0 +1,52 @@
+# Local SDK/tooling
+.tools/dotnet/
+
+# .NET build output
+backend/**/bin/
+backend/**/obj/
+TestResults/
+*.trx
+
+# Node dependencies and build output
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/coverage/
+tools/mcp-db-server/node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!frontend/.env.example
+!tools/mcp-db-server/.env.example
+tools/mcp-db-server/.env
+appsettings.Local.json
+appsettings.*.Local.json
+
+# Logs and runtime output
+logs/
+*.log
+*.err.log
+*.out.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local database/storage artifacts
+postgres-data/
+pgdata/
+*.db
+*.db-shm
+*.db-wal
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.user
+*.suo
+*.sw?

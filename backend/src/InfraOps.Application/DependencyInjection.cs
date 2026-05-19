@@ -1,0 +1,107 @@
+using FluentValidation;
+using InfraOps.Application.Abstractions.Messaging;
+using InfraOps.Application.Dashboard.Dtos;
+using InfraOps.Application.Dashboard.Queries.GetDashboardCharts;
+using InfraOps.Application.Dashboard.Queries.GetDashboardSummary;
+using InfraOps.Application.Dashboard.Queries.GetExecutionMetrics;
+using InfraOps.Application.Dashboard.Queries.GetInventoryMetrics;
+using InfraOps.Application.Dashboard.Queries.GetValidationMetrics;
+using InfraOps.Application.EntityTypes.Commands.ActivateEntityType;
+using InfraOps.Application.EntityTypes.Commands.CreateEntityType;
+using InfraOps.Application.EntityTypes.Commands.DeactivateEntityType;
+using InfraOps.Application.EntityTypes.Commands.UpdateEntityType;
+using InfraOps.Application.EntityTypes.Dtos;
+using InfraOps.Application.EntityTypes.Queries.GetEntityTypeById;
+using InfraOps.Application.EntityTypes.Queries.ListEntityTypes;
+using InfraOps.Application.Inventory.Commands.ActivateInventoryItem;
+using InfraOps.Application.Inventory.Commands.CreateInventoryItem;
+using InfraOps.Application.Inventory.Commands.DeactivateInventoryItem;
+using InfraOps.Application.Inventory.Commands.UpdateInventoryItem;
+using InfraOps.Application.Inventory.Dtos;
+using InfraOps.Application.Inventory.Queries.GetInventoryFormDefinitionByEntityType;
+using InfraOps.Application.Inventory.Queries.GetInventoryFormMetadata;
+using InfraOps.Application.Inventory.Queries.GetInventoryItemById;
+using InfraOps.Application.Inventory.Queries.ListInventoryItems;
+using InfraOps.Application.PreventiveExecutions.Commands.SavePreventiveExecutionDraft;
+using InfraOps.Application.PreventiveExecutions.Commands.StartPreventiveExecution;
+using InfraOps.Application.PreventiveExecutions.Commands.SubmitPreventiveExecution;
+using InfraOps.Application.PreventiveExecutions.Dtos;
+using InfraOps.Application.PreventiveExecutions.Queries.GetPreventiveExecutionById;
+using InfraOps.Application.PreventiveExecutions.Queries.GetPreventiveExecutionFormDefinition;
+using InfraOps.Application.PreventiveExecutions.Queries.ListPreventiveExecutions;
+using InfraOps.Application.PreventiveValidations.Commands.ApprovePreventiveExecution;
+using InfraOps.Application.PreventiveValidations.Commands.RejectPreventiveExecution;
+using InfraOps.Application.PreventiveValidations.Commands.RequestPreventiveRework;
+using InfraOps.Application.PreventiveValidations.Queries.GetPreventiveValidationDetail;
+using InfraOps.Application.PreventiveValidations.Queries.ListPreventiveValidations;
+using InfraOps.Application.PreventiveTemplates.Commands.ActivatePreventiveTemplate;
+using InfraOps.Application.PreventiveTemplates.Commands.CreatePreventiveTemplate;
+using InfraOps.Application.PreventiveTemplates.Commands.DeactivatePreventiveTemplate;
+using InfraOps.Application.PreventiveTemplates.Commands.UpdatePreventiveTemplate;
+using InfraOps.Application.PreventiveTemplates.Dtos;
+using InfraOps.Application.PreventiveTemplates.Queries.GetPreventiveTemplateById;
+using InfraOps.Application.PreventiveTemplates.Queries.GetPreventiveTemplateFormMetadata;
+using InfraOps.Application.PreventiveTemplates.Queries.ListPreventiveTemplates;
+using InfraOps.Application.PreventiveTemplates.Queries.ListPreventiveTemplatesByEntityType;
+using InfraOps.Application.Diagnostics.Queries.GetApplicationInfo;
+using InfraOps.Application.Identity.Commands.Login;
+using InfraOps.Application.Identity.Commands.Logout;
+using InfraOps.Application.Identity.Commands.RefreshAccessToken;
+using InfraOps.Application.Identity.Dtos;
+using InfraOps.Application.Identity.Queries.GetCurrentUser;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace InfraOps.Application;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddApplication(this IServiceCollection services)
+    {
+        services.AddValidatorsFromAssemblyContaining<AssemblyReference>();
+        services.AddScoped<ICommandHandler<LoginCommand, AuthenticationTokensDto>, LoginCommandHandler>();
+        services.AddScoped<ICommandHandler<RefreshAccessTokenCommand, AuthenticationTokensDto>, RefreshAccessTokenCommandHandler>();
+        services.AddScoped<ICommandHandler<LogoutCommand>, LogoutCommandHandler>();
+        services.AddScoped<IQueryHandler<GetDashboardSummaryQuery, DashboardSummaryDto>, GetDashboardSummaryQueryHandler>();
+        services.AddScoped<IQueryHandler<GetExecutionMetricsQuery, ExecutionMetricsDto>, GetExecutionMetricsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetValidationMetricsQuery, ValidationMetricsDto>, GetValidationMetricsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetInventoryMetricsQuery, InventoryMetricsDto>, GetInventoryMetricsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetDashboardChartsQuery, DashboardChartsDto>, GetDashboardChartsQueryHandler>();
+        services.AddScoped<ICommandHandler<CreateEntityTypeCommand, EntityTypeDetailsDto>, CreateEntityTypeCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateEntityTypeCommand, EntityTypeDetailsDto>, UpdateEntityTypeCommandHandler>();
+        services.AddScoped<ICommandHandler<ActivateEntityTypeCommand>, ActivateEntityTypeCommandHandler>();
+        services.AddScoped<ICommandHandler<DeactivateEntityTypeCommand>, DeactivateEntityTypeCommandHandler>();
+        services.AddScoped<ICommandHandler<CreateInventoryItemCommand, InventoryItemDetailsDto>, CreateInventoryItemCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateInventoryItemCommand, InventoryItemDetailsDto>, UpdateInventoryItemCommandHandler>();
+        services.AddScoped<ICommandHandler<ActivateInventoryItemCommand>, ActivateInventoryItemCommandHandler>();
+        services.AddScoped<ICommandHandler<DeactivateInventoryItemCommand>, DeactivateInventoryItemCommandHandler>();
+        services.AddScoped<ICommandHandler<StartPreventiveExecutionCommand, PreventiveExecutionDetailsDto>, StartPreventiveExecutionCommandHandler>();
+        services.AddScoped<ICommandHandler<SavePreventiveExecutionDraftCommand, PreventiveExecutionDetailsDto>, SavePreventiveExecutionDraftCommandHandler>();
+        services.AddScoped<ICommandHandler<SubmitPreventiveExecutionCommand, PreventiveExecutionDetailsDto>, SubmitPreventiveExecutionCommandHandler>();
+        services.AddScoped<ICommandHandler<ApprovePreventiveExecutionCommand, PreventiveExecutionDetailsDto>, ApprovePreventiveExecutionCommandHandler>();
+        services.AddScoped<ICommandHandler<RejectPreventiveExecutionCommand, PreventiveExecutionDetailsDto>, RejectPreventiveExecutionCommandHandler>();
+        services.AddScoped<ICommandHandler<RequestPreventiveReworkCommand, PreventiveExecutionDetailsDto>, RequestPreventiveReworkCommandHandler>();
+        services.AddScoped<ICommandHandler<CreatePreventiveTemplateCommand, PreventiveTemplateDetailsDto>, CreatePreventiveTemplateCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdatePreventiveTemplateCommand, PreventiveTemplateDetailsDto>, UpdatePreventiveTemplateCommandHandler>();
+        services.AddScoped<ICommandHandler<ActivatePreventiveTemplateCommand>, ActivatePreventiveTemplateCommandHandler>();
+        services.AddScoped<ICommandHandler<DeactivatePreventiveTemplateCommand>, DeactivatePreventiveTemplateCommandHandler>();
+        services.AddScoped<IQueryHandler<GetCurrentUserQuery, CurrentUserDto>, GetCurrentUserQueryHandler>();
+        services.AddScoped<IQueryHandler<GetEntityTypeByIdQuery, EntityTypeDetailsDto>, GetEntityTypeByIdQueryHandler>();
+        services.AddScoped<IQueryHandler<ListEntityTypesQuery, IReadOnlyCollection<EntityTypeSummaryDto>>, ListEntityTypesQueryHandler>();
+        services.AddScoped<IQueryHandler<GetInventoryItemByIdQuery, InventoryItemDetailsDto>, GetInventoryItemByIdQueryHandler>();
+        services.AddScoped<IQueryHandler<ListInventoryItemsQuery, IReadOnlyCollection<InventoryItemSummaryDto>>, ListInventoryItemsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetInventoryFormMetadataQuery, InventoryFormMetadataDto>, GetInventoryFormMetadataQueryHandler>();
+        services.AddScoped<IQueryHandler<GetInventoryFormDefinitionByEntityTypeQuery, InventoryFormDefinitionDto>, GetInventoryFormDefinitionByEntityTypeQueryHandler>();
+        services.AddScoped<IQueryHandler<GetPreventiveExecutionByIdQuery, PreventiveExecutionDetailsDto>, GetPreventiveExecutionByIdQueryHandler>();
+        services.AddScoped<IQueryHandler<ListPreventiveExecutionsQuery, IReadOnlyCollection<PreventiveExecutionSummaryDto>>, ListPreventiveExecutionsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetPreventiveExecutionFormDefinitionQuery, PreventiveExecutionFormDefinitionDto>, GetPreventiveExecutionFormDefinitionQueryHandler>();
+        services.AddScoped<IQueryHandler<ListPreventiveValidationsQuery, IReadOnlyCollection<PreventiveExecutionSummaryDto>>, ListPreventiveValidationsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetPreventiveValidationDetailQuery, PreventiveExecutionDetailsDto>, GetPreventiveValidationDetailQueryHandler>();
+        services.AddScoped<IQueryHandler<GetPreventiveTemplateByIdQuery, PreventiveTemplateDetailsDto>, GetPreventiveTemplateByIdQueryHandler>();
+        services.AddScoped<IQueryHandler<ListPreventiveTemplatesQuery, IReadOnlyCollection<PreventiveTemplateSummaryDto>>, ListPreventiveTemplatesQueryHandler>();
+        services.AddScoped<IQueryHandler<ListPreventiveTemplatesByEntityTypeQuery, IReadOnlyCollection<PreventiveTemplateDetailsDto>>, ListPreventiveTemplatesByEntityTypeQueryHandler>();
+        services.AddScoped<IQueryHandler<GetPreventiveTemplateFormMetadataQuery, PreventiveTemplateFormMetadataDto>, GetPreventiveTemplateFormMetadataQueryHandler>();
+        services.AddScoped<IQueryHandler<GetApplicationInfoQuery, ApplicationInfoResponse>, GetApplicationInfoQueryHandler>();
+
+        return services;
+    }
+}
