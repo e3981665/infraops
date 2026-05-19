@@ -1,15 +1,11 @@
-import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { renderWithProviders } from '@/app/test/render-with-providers'
 import { HomePage } from '@/modules/home/pages/HomePage'
 
 describe('HomePage', () => {
   it('should render the product overview', () => {
-    render(
-      <MemoryRouter>
-        <HomePage />
-      </MemoryRouter>,
-    )
+    renderWithProviders(<HomePage />)
 
     expect(
       screen.getByRole('heading', {

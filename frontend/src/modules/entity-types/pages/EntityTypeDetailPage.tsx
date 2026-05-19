@@ -4,8 +4,10 @@ import { useAuthSession } from '@/modules/auth/hooks/useAuthSession'
 import { entityTypeQueryKeys } from '@/modules/entity-types/api/entity-type-query-keys'
 import { entityTypesClient } from '@/modules/entity-types/api/entity-types-client'
 import { buildEntityTypeEditPath, routePaths } from '@/shared/routing/route-paths'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 export function EntityTypeDetailPage() {
+  const { t } = useTranslation()
   const { entityTypeId } = useParams()
   const queryClient = useQueryClient()
   const { session } = useAuthSession()
@@ -40,9 +42,9 @@ export function EntityTypeDetailPage() {
   if (!entityTypeId || !accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Entity type administration</p>
-        <h1>Entity type could not be resolved.</h1>
-        <p>The detail route requires a valid entity type id and an authenticated session.</p>
+        <p className="hero-panel__eyebrow">{t('entity.detail.administration')}</p>
+        <h1>{t('entity.detail.unresolvedTitle')}</h1>
+        <p>{t('entity.detail.unresolvedHelp')}</p>
       </section>
     )
   }
@@ -50,9 +52,9 @@ export function EntityTypeDetailPage() {
   if (entityTypeQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Entity type administration</p>
-        <h1>Loading entity definition.</h1>
-        <p>InfraOps is fetching the current configuration for review.</p>
+        <p className="hero-panel__eyebrow">{t('entity.detail.administration')}</p>
+        <h1>{t('entity.detail.loadingTitle')}</h1>
+        <p>{t('entity.detail.loadingHelp')}</p>
       </section>
     )
   }
@@ -60,9 +62,9 @@ export function EntityTypeDetailPage() {
   if (entityTypeQuery.isError || !entityTypeQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Entity type administration</p>
-        <h1>Entity definition could not be loaded.</h1>
-        <p>{entityTypeQuery.error?.message ?? 'The entity type was not found.'}</p>
+        <p className="hero-panel__eyebrow">{t('entity.detail.administration')}</p>
+        <h1>{t('entity.detail.loadFailed')}</h1>
+        <p>{entityTypeQuery.error?.message ?? t('entity.detail.notFound')}</p>
       </section>
     )
   }
@@ -73,21 +75,20 @@ export function EntityTypeDetailPage() {
     <section className="module-panel">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Entity type administration</p>
+          <p className="hero-panel__eyebrow">{t('entity.detail.administration')}</p>
           <h1>{entityType.name}</h1>
         </div>
         <p>
-          Review the stable definition that downstream inventory and preventive
-          modules will reuse.
+          {t('entity.detail.description')}
         </p>
       </div>
 
       <div className="module-panel__actions">
         <Link className="button--secondary" to={routePaths.entityTypes}>
-          Back to list
+          {t('common.backToList')}
         </Link>
         <Link className="button--secondary" to={buildEntityTypeEditPath(entityType.id)}>
-          Edit definition
+          {t('entity.detail.editDefinition')}
         </Link>
         <button
           className="button"
@@ -101,31 +102,31 @@ export function EntityTypeDetailPage() {
             void activateMutation.mutateAsync()
           }}
         >
-          {entityType.isActive ? 'Deactivate entity type' : 'Activate entity type'}
+          {entityType.isActive ? t('entity.detail.deactivate') : t('entity.detail.activate')}
         </button>
       </div>
 
       <div className="detail-grid">
         <article className="card">
-          <h2>Metadata</h2>
+          <h2>{t('common.metadata')}</h2>
           <dl className="definition-list">
             <div>
-              <dt>Code</dt>
+              <dt>{t('common.code')}</dt>
               <dd>
                 <code>{entityType.code}</code>
               </dd>
             </div>
             <div>
-              <dt>Status</dt>
-              <dd>{entityType.isActive ? 'Active' : 'Inactive'}</dd>
+              <dt>{t('common.status')}</dt>
+              <dd>{entityType.isActive ? t('common.active') : t('common.inactive')}</dd>
             </div>
             <div>
-              <dt>Field count</dt>
+              <dt>{t('entity.detail.fieldCount')}</dt>
               <dd>{entityType.fieldDefinitions.filter((field) => field.isActive).length}</dd>
             </div>
             <div>
-              <dt>Description</dt>
-              <dd>{entityType.description || 'No description provided.'}</dd>
+              <dt>{t('entity.form.description')}</dt>
+              <dd>{entityType.description || t('common.noDescription')}</dd>
             </div>
           </dl>
         </article>
@@ -134,8 +135,8 @@ export function EntityTypeDetailPage() {
       <section className="form-section">
         <div className="form-section__heading">
           <div>
-            <h2>Dynamic fields</h2>
-            <p>Active and inactive field definitions remain visible for admin review.</p>
+            <h2>{t('entity.detail.dynamicFields')}</h2>
+            <p>{t('entity.detail.dynamicFieldsHelp')}</p>
           </div>
         </div>
 
@@ -153,30 +154,30 @@ export function EntityTypeDetailPage() {
                   </p>
                 </div>
                 <span className={`status-chip${fieldDefinition.isActive ? '' : ' status-chip--inactive'}`}>
-                  {fieldDefinition.isActive ? 'Active' : 'Inactive'}
+                  {fieldDefinition.isActive ? t('common.active') : t('common.inactive')}
                 </span>
               </div>
 
               <dl className="definition-list definition-list--compact">
                 <div>
-                  <dt>Field type</dt>
+                  <dt>{t('entity.form.fieldType')}</dt>
                   <dd>{fieldDefinition.fieldType}</dd>
                 </div>
                 <div>
-                  <dt>Display order</dt>
+                  <dt>{t('entity.form.displayOrder')}</dt>
                   <dd>{fieldDefinition.displayOrder}</dd>
                 </div>
                 <div>
-                  <dt>Required</dt>
-                  <dd>{fieldDefinition.isRequired ? 'Yes' : 'No'}</dd>
+                  <dt>{t('common.required')}</dt>
+                  <dd>{fieldDefinition.isRequired ? t('common.yes') : t('common.no')}</dd>
                 </div>
                 <div>
-                  <dt>Placeholder</dt>
-                  <dd>{fieldDefinition.placeholder || 'Not defined'}</dd>
+                  <dt>{t('entity.form.placeholder')}</dt>
+                  <dd>{fieldDefinition.placeholder || t('common.notDefined')}</dd>
                 </div>
                 <div>
-                  <dt>Help text</dt>
-                  <dd>{fieldDefinition.helpText || 'Not defined'}</dd>
+                  <dt>{t('entity.form.helpText')}</dt>
+                  <dd>{fieldDefinition.helpText || t('common.notDefined')}</dd>
                 </div>
               </dl>
 
@@ -184,7 +185,7 @@ export function EntityTypeDetailPage() {
                 <div className="select-options-panel">
                   <div className="form-section__heading">
                     <div>
-                      <h4>Select options</h4>
+                      <h4>{t('entity.form.selectOptions')}</h4>
                     </div>
                   </div>
                   <div className="entity-field-option-list">
@@ -196,7 +197,7 @@ export function EntityTypeDetailPage() {
                             <code>{option.value}</code>
                           </p>
                         </div>
-                        <span>Order {option.displayOrder}</span>
+                        <span>{t('entity.detail.displayOrderWithValue', { value: option.displayOrder })}</span>
                       </div>
                     ))}
                   </div>

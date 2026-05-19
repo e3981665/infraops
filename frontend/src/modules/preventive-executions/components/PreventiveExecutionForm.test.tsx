@@ -1,6 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { renderWithProviders } from '@/app/test/render-with-providers'
 import { PreventiveExecutionForm } from '@/modules/preventive-executions/components/PreventiveExecutionForm'
 import type { PreventiveExecutionTemplateSection } from '@/modules/preventive-executions/types/preventive-execution'
 
@@ -92,7 +93,7 @@ const sections: PreventiveExecutionTemplateSection[] = [
 
 describe('PreventiveExecutionForm', () => {
   it('should render template sections and item controls from API data', () => {
-    render(<PreventiveExecutionForm sections={sections} />)
+    renderWithProviders(<PreventiveExecutionForm sections={sections} />)
 
     expect(screen.getByText('Visual Inspection')).toBeInTheDocument()
     expect(screen.getByText('Electrical Measurements')).toBeInTheDocument()
@@ -101,7 +102,7 @@ describe('PreventiveExecutionForm', () => {
   })
 
   it('should render select options and numeric hints', () => {
-    render(<PreventiveExecutionForm sections={sections} />)
+    renderWithProviders(<PreventiveExecutionForm sections={sections} />)
 
     expect(screen.getByRole('option', { name: 'Good' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'Warning' })).toBeInTheDocument()
@@ -111,15 +112,37 @@ describe('PreventiveExecutionForm', () => {
   it('should show conditional comment input when failure requires a comment', async () => {
     const user = userEvent.setup()
 
-    render(<PreventiveExecutionForm sections={sections} />)
+    renderWithProviders(<PreventiveExecutionForm sections={sections} />)
 
     await user.selectOptions(screen.getByLabelText(/Any active alarm/i), 'false')
 
-    expect(screen.getByLabelText('Comment')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Comment/)).toBeInTheDocument()
+  })
+
+  it('should allow optional comments to be added to draft answers', async () => {
+    const user = userEvent.setup()
+    const onSaveDraft = vi.fn().mockResolvedValue(undefined)
+
+    renderWithProviders(<PreventiveExecutionForm sections={sections} onSaveDraft={onSaveDraft} />)
+
+    await user.selectOptions(screen.getByLabelText(/Equipment clean/i), 'true')
+    await user.click(screen.getAllByRole('button', { name: /add comment/i })[0])
+    await user.type(screen.getByLabelText('Comment'), 'Panel cleaned during inspection.')
+    await user.click(screen.getByRole('button', { name: /save draft/i }))
+
+    await waitFor(() => {
+      expect(onSaveDraft).toHaveBeenCalledWith([
+        {
+          itemKey: 'equipmentClean',
+          value: 'true',
+          comment: 'Panel cleaned during inspection.',
+        },
+      ])
+    })
   })
 
   it('should rehydrate saved draft answers when initial answers change', () => {
-    const { rerender } = render(
+    const { rerender } = renderWithProviders(
       <PreventiveExecutionForm sections={sections} initialAnswers={[]} />,
     )
 
@@ -143,7 +166,7 @@ describe('PreventiveExecutionForm', () => {
     const user = userEvent.setup()
     const onSaveDraft = vi.fn().mockResolvedValue(undefined)
 
-    render(<PreventiveExecutionForm sections={sections} onSaveDraft={onSaveDraft} />)
+    renderWithProviders(<PreventiveExecutionForm sections={sections} onSaveDraft={onSaveDraft} />)
 
     await user.selectOptions(screen.getByLabelText(/Equipment clean/i), 'true')
     await user.click(screen.getByRole('button', { name: /save draft/i }))
@@ -159,7 +182,7 @@ describe('PreventiveExecutionForm', () => {
     const user = userEvent.setup()
     const onSubmitExecution = vi.fn().mockResolvedValue(undefined)
 
-    render(
+    renderWithProviders(
       <PreventiveExecutionForm sections={sections} onSubmitExecution={onSubmitExecution} />,
     )
 

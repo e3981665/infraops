@@ -65,3 +65,15 @@ export function buildPreventiveExecutionEditPath(preventiveExecutionId: string) 
 export function buildPreventiveValidationDetailPath(preventiveExecutionId: string) {
   return `/app/preventive-validations/${requireRoutePathId(preventiveExecutionId, 'Preventive execution id')}`
 }
+
+export function buildPreventiveValidationsPath(filters?: { status?: string }) {
+  const searchParams = new URLSearchParams()
+
+  if (filters?.status) {
+    searchParams.set('status', filters.status)
+  }
+
+  const query = searchParams.toString()
+
+  return query ? `${routePaths.preventiveValidations}?${query}` : routePaths.preventiveValidations
+}

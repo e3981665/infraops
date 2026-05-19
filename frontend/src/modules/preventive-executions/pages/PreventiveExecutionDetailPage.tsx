@@ -7,8 +7,11 @@ import { PreventiveExecutionForm } from '@/modules/preventive-executions/compone
 import { preventiveExecutionsClient } from '@/modules/preventive-executions/api/preventive-executions-client'
 import { preventiveExecutionQueryKeys } from '@/modules/preventive-executions/api/preventive-execution-query-keys'
 import { buildPreventiveExecutionEditPath, routePaths } from '@/shared/routing/route-paths'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+import { localizeDemoText } from '@/shared/i18n/localized-domain-labels'
 
 export function PreventiveExecutionDetailPage() {
+  const { locale, t } = useTranslation()
   const { preventiveExecutionId } = useParams()
   const { session } = useAuthSession()
   const accessToken = session?.tokens.accessToken
@@ -22,8 +25,8 @@ export function PreventiveExecutionDetailPage() {
   if (executionQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive execution</p>
-        <h1>Loading execution.</h1>
+        <p className="hero-panel__eyebrow">{t('executions.eyebrow')}</p>
+        <h1>{t('executions.loadingDetail')}</h1>
       </section>
     )
   }
@@ -31,8 +34,8 @@ export function PreventiveExecutionDetailPage() {
   if (executionQuery.isError || !executionQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive execution</p>
-        <h1>Execution could not be loaded.</h1>
+        <p className="hero-panel__eyebrow">{t('executions.eyebrow')}</p>
+        <h1>{t('executions.loadFailed')}</h1>
         <p>{executionQuery.error?.message}</p>
       </section>
     )
@@ -44,40 +47,41 @@ export function PreventiveExecutionDetailPage() {
     <section className="module-panel">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Execution detail</p>
+          <p className="hero-panel__eyebrow">{t('executions.detailEyebrow')}</p>
           <h1>{execution.inventoryItemDisplayName}</h1>
         </div>
         <p>
-          <StatusBadge value={execution.status} /> {execution.preventiveTemplateName}
+          <StatusBadge value={execution.status} />{' '}
+          {localizeDemoText(execution.preventiveTemplateName, locale)}
         </p>
       </div>
 
       <div className="module-panel__actions">
         <Link className="button--secondary" to={routePaths.preventiveExecutions}>
-          Back to executions
+          {t('executions.backToExecutions')}
         </Link>
         {execution.status === 'draft' ? (
           <Link className="button" to={buildPreventiveExecutionEditPath(execution.id)}>
-            Resume draft
+            {t('executions.resumeDraft')}
           </Link>
         ) : null}
       </div>
 
       <dl className="definition-list definition-list--compact">
         <div>
-          <dt>Entity type</dt>
-          <dd>{execution.entityTypeName}</dd>
+          <dt>{t('common.entityType')}</dt>
+          <dd>{localizeDemoText(execution.entityTypeName, locale)}</dd>
         </div>
         <div>
-          <dt>Region</dt>
-          <dd>{execution.regionName}</dd>
+          <dt>{t('common.region')}</dt>
+          <dd>{localizeDemoText(execution.regionName, locale)}</dd>
         </div>
         <div>
-          <dt>Site</dt>
-          <dd>{execution.siteName}</dd>
+          <dt>{t('common.site')}</dt>
+          <dd>{localizeDemoText(execution.siteName, locale)}</dd>
         </div>
         <div>
-          <dt>Updated</dt>
+          <dt>{t('common.updated')}</dt>
           <dd>{new Date(execution.updatedAtUtc).toLocaleString()}</dd>
         </div>
       </dl>
@@ -92,15 +96,15 @@ export function PreventiveExecutionDetailPage() {
       />
 
       <section className="form-section">
-        <h2>Validation history</h2>
+        <h2>{t('executions.validationHistory')}</h2>
         {execution.validationHistory.length === 0 ? (
-          <p className="empty-copy">No validation action has been recorded for this execution.</p>
+          <p className="empty-copy">{t('executions.noValidationHistory')}</p>
         ) : (
           <div className="timeline-list">
             {execution.validationHistory.map((record) => (
               <article className="timeline-item" key={record.id}>
                 <StatusBadge value={record.actionType} />
-                <p>{record.comment ?? 'No comment provided.'}</p>
+                <p>{localizeDemoText(record.comment, locale) || t('executions.noComment')}</p>
                 <small>
                   {record.validatorUserId} - {new Date(record.createdAtUtc).toLocaleString()}
                 </small>

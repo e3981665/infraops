@@ -20,6 +20,7 @@ import {
   normalizeEntityTypeCode,
   normalizeFieldKey,
 } from '@/modules/entity-types/utils/entity-type-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 interface EntityTypeFormProps {
   eyebrow: string
@@ -48,6 +49,7 @@ export function EntityTypeForm({
   initialValues,
   onSubmit,
 }: EntityTypeFormProps) {
+  const { t } = useTranslation()
   const [submitError, setSubmitError] = useState<string | null>(null)
   const {
     control,
@@ -81,7 +83,7 @@ export function EntityTypeForm({
         return
       }
 
-      setSubmitError('InfraOps could not save the entity type definition.')
+      setSubmitError(t('entity.form.saveFailed'))
     }
   }
 
@@ -99,20 +101,20 @@ export function EntityTypeForm({
         <section className="form-section">
           <div className="form-section__heading">
             <div>
-              <h2>Definition metadata</h2>
-              <p>Name, stable code, and context for the admin-facing definition.</p>
+              <h2>{t('entity.form.definitionMetadata')}</h2>
+              <p>{t('entity.form.definitionMetadataHelp')}</p>
             </div>
           </div>
 
           <div className="field-grid field-grid--two-columns">
             <div className="field">
-              <label htmlFor="entityTypeName">Entity type name</label>
+              <label htmlFor="entityTypeName">{t('entity.form.name')}</label>
               <input id="entityTypeName" type="text" {...register('name')} />
               {errors.name ? <span className="field__error">{errors.name.message}</span> : null}
             </div>
 
             <div className="field">
-              <label htmlFor="entityTypeCode">Entity type code</label>
+              <label htmlFor="entityTypeCode">{t('entity.form.code')}</label>
               <input
                 id="entityTypeCode"
                 type="text"
@@ -129,7 +131,7 @@ export function EntityTypeForm({
           </div>
 
           <div className="field">
-            <label htmlFor="entityTypeDescription">Description</label>
+            <label htmlFor="entityTypeDescription">{t('entity.form.description')}</label>
             <textarea id="entityTypeDescription" rows={4} {...register('description')} />
             {errors.description ? (
               <span className="field__error">{errors.description.message}</span>
@@ -140,11 +142,8 @@ export function EntityTypeForm({
         <section className="form-section">
           <div className="form-section__heading">
             <div>
-              <h2>Dynamic field definitions</h2>
-              <p>
-                These fields define what Inventory will later render and validate
-                for this entity type.
-              </p>
+              <h2>{t('entity.form.dynamicFields')}</h2>
+              <p>{t('entity.form.dynamicFieldsHelp')}</p>
             </div>
             <button
               className="button--secondary"
@@ -155,7 +154,7 @@ export function EntityTypeForm({
                 )
               }}
             >
-              Add field
+              {t('entity.form.addField')}
             </button>
           </div>
 
@@ -183,7 +182,7 @@ export function EntityTypeForm({
 
         <div className="form-actions">
           <button className="button" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : submitLabel}
+            {isSubmitting ? t('common.saving') : submitLabel}
           </button>
         </div>
       </form>
@@ -200,6 +199,7 @@ function FieldDefinitionEditor({
   error,
   isPersisted,
 }: FieldDefinitionEditorProps) {
+  const { t } = useTranslation()
   const fieldType = useWatch({
     control,
     name: `fieldDefinitions.${index}.fieldType`,
@@ -225,8 +225,12 @@ function FieldDefinitionEditor({
     >
       <div className="entity-field-editor__header">
         <div>
-          <h3>Field {index + 1}</h3>
-          <p>{isActive ? 'Active definition' : 'Inactive definition kept for history.'}</p>
+          <h3>{t('entity.form.fieldTitle', { index: index + 1 })}</h3>
+          <p>
+            {isActive
+              ? t('entity.form.activeDefinition')
+              : t('entity.form.inactiveDefinition')}
+          </p>
         </div>
         <div className="button-row">
           {isPersisted ? (
@@ -239,11 +243,11 @@ function FieldDefinitionEditor({
                 })
               }}
             >
-              {isActive ? 'Deactivate field' : 'Reactivate field'}
+              {isActive ? t('entity.form.deactivateField') : t('entity.form.reactivateField')}
             </button>
           ) : (
             <button className="button--secondary" type="button" onClick={onRemoveField}>
-              Remove field
+              {t('entity.form.removeField')}
             </button>
           )}
         </div>
@@ -251,7 +255,7 @@ function FieldDefinitionEditor({
 
       <div className="field-grid field-grid--three-columns">
         <div className="field">
-          <label htmlFor={`fieldDefinitions.${index}.fieldKey`}>Field key</label>
+          <label htmlFor={`fieldDefinitions.${index}.fieldKey`}>{t('entity.form.fieldKey')}</label>
           <input
             id={`fieldDefinitions.${index}.fieldKey`}
             type="text"
@@ -269,7 +273,7 @@ function FieldDefinitionEditor({
         </div>
 
         <div className="field">
-          <label htmlFor={`fieldDefinitions.${index}.displayLabel`}>Display label</label>
+          <label htmlFor={`fieldDefinitions.${index}.displayLabel`}>{t('entity.form.displayLabel')}</label>
           <input
             id={`fieldDefinitions.${index}.displayLabel`}
             type="text"
@@ -281,15 +285,15 @@ function FieldDefinitionEditor({
         </div>
 
         <div className="field">
-          <label htmlFor={`fieldDefinitions.${index}.fieldType`}>Field type</label>
+          <label htmlFor={`fieldDefinitions.${index}.fieldType`}>{t('entity.form.fieldType')}</label>
           <select id={`fieldDefinitions.${index}.fieldType`} {...register(`fieldDefinitions.${index}.fieldType`)}>
-            <option value="text">Text</option>
-            <option value="textarea">Textarea</option>
-            <option value="number">Number</option>
-            <option value="decimal">Decimal</option>
-            <option value="boolean">Boolean</option>
-            <option value="date">Date</option>
-            <option value="select">Select</option>
+            <option value="text">{t('fieldType.text')}</option>
+            <option value="textarea">{t('fieldType.textarea')}</option>
+            <option value="number">{t('fieldType.number')}</option>
+            <option value="decimal">{t('fieldType.decimal')}</option>
+            <option value="boolean">{t('fieldType.boolean')}</option>
+            <option value="date">{t('fieldType.date')}</option>
+            <option value="select">{t('fieldType.select')}</option>
           </select>
           {error?.fieldType ? <span className="field__error">{error.fieldType.message}</span> : null}
         </div>
@@ -297,7 +301,7 @@ function FieldDefinitionEditor({
 
       <div className="field-grid field-grid--three-columns">
         <div className="field">
-          <label htmlFor={`fieldDefinitions.${index}.displayOrder`}>Display order</label>
+          <label htmlFor={`fieldDefinitions.${index}.displayOrder`}>{t('entity.form.displayOrder')}</label>
           <input
             id={`fieldDefinitions.${index}.displayOrder`}
             type="number"
@@ -315,7 +319,7 @@ function FieldDefinitionEditor({
             type="checkbox"
             {...register(`fieldDefinitions.${index}.isRequired`)}
           />
-          <span>Required field</span>
+          <span>{t('entity.form.requiredField')}</span>
         </label>
 
         <label className="checkbox-field" htmlFor={`fieldDefinitions.${index}.isActive`}>
@@ -324,13 +328,13 @@ function FieldDefinitionEditor({
             type="checkbox"
             {...register(`fieldDefinitions.${index}.isActive`)}
           />
-          <span>Field is active</span>
+          <span>{t('entity.form.fieldActive')}</span>
         </label>
       </div>
 
       <div className="field-grid field-grid--two-columns">
         <div className="field">
-          <label htmlFor={`fieldDefinitions.${index}.placeholder`}>Placeholder</label>
+          <label htmlFor={`fieldDefinitions.${index}.placeholder`}>{t('entity.form.placeholder')}</label>
           <input
             id={`fieldDefinitions.${index}.placeholder`}
             type="text"
@@ -342,7 +346,7 @@ function FieldDefinitionEditor({
         </div>
 
         <div className="field">
-          <label htmlFor={`fieldDefinitions.${index}.helpText`}>Help text</label>
+          <label htmlFor={`fieldDefinitions.${index}.helpText`}>{t('entity.form.helpText')}</label>
           <textarea
             id={`fieldDefinitions.${index}.helpText`}
             rows={2}
@@ -356,15 +360,15 @@ function FieldDefinitionEditor({
         <section className="select-options-panel">
           <div className="form-section__heading">
             <div>
-              <h4>Select options</h4>
-              <p>Options are stored as stable values plus display labels.</p>
+              <h4>{t('entity.form.selectOptions')}</h4>
+              <p>{t('entity.form.selectOptionsHelp')}</p>
             </div>
             <button
               className="button--secondary"
               type="button"
               onClick={() => options.append(createDefaultFieldOption(options.fields.length + 1))}
             >
-              Add option
+              {t('entity.form.addOption')}
             </button>
           </div>
 
@@ -373,7 +377,7 @@ function FieldDefinitionEditor({
               <div className="entity-field-option-row" key={option.id}>
                 <div className="field">
                   <label htmlFor={`fieldDefinitions.${index}.options.${optionIndex}.value`}>
-                    Option value
+                    {t('entity.form.optionValue')}
                   </label>
                   <input
                     id={`fieldDefinitions.${index}.options.${optionIndex}.value`}
@@ -395,7 +399,7 @@ function FieldDefinitionEditor({
 
                 <div className="field">
                   <label htmlFor={`fieldDefinitions.${index}.options.${optionIndex}.label`}>
-                    Option label
+                    {t('entity.form.optionLabel')}
                   </label>
                   <input
                     id={`fieldDefinitions.${index}.options.${optionIndex}.label`}
@@ -409,7 +413,7 @@ function FieldDefinitionEditor({
 
                 <div className="field">
                   <label htmlFor={`fieldDefinitions.${index}.options.${optionIndex}.displayOrder`}>
-                    Display order
+                    {t('entity.form.displayOrder')}
                   </label>
                   <input
                     id={`fieldDefinitions.${index}.options.${optionIndex}.displayOrder`}
@@ -429,7 +433,7 @@ function FieldDefinitionEditor({
                   type="button"
                   onClick={() => options.remove(optionIndex)}
                 >
-                  Remove option
+                  {t('entity.form.removeOption')}
                 </button>
               </div>
             ))}

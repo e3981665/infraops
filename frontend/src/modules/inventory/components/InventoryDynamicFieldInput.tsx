@@ -1,6 +1,8 @@
 import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 import type { InventoryItemFormValues } from '@/modules/inventory/schemas/inventory-form-schema'
 import type { InventoryFormFieldDefinition } from '@/modules/inventory/types/inventory'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+import type { TranslationKey } from '@/shared/i18n/translations'
 
 interface InventoryDynamicFieldInputProps {
   fieldDefinition: InventoryFormFieldDefinition
@@ -13,6 +15,7 @@ export function InventoryDynamicFieldInput({
   register,
   error,
 }: InventoryDynamicFieldInputProps) {
+  const { t } = useTranslation()
   const fieldPath = `attributeValues.${fieldDefinition.fieldKey}` as const
   const fieldError = error?.[fieldDefinition.fieldKey]
   const inputId = `inventory-attribute-${fieldDefinition.fieldKey}`
@@ -24,7 +27,7 @@ export function InventoryDynamicFieldInput({
         {fieldDefinition.isRequired ? ' *' : ''}
       </label>
 
-      {renderInput(fieldDefinition, inputId, register(fieldPath))}
+      {renderInput(fieldDefinition, inputId, register(fieldPath), t)}
 
       {fieldDefinition.helpText ? (
         <span className="field__hint">{fieldDefinition.helpText}</span>
@@ -41,6 +44,7 @@ function renderInput(
   fieldDefinition: InventoryFormFieldDefinition,
   inputId: string,
   registration: ReturnType<UseFormRegister<InventoryItemFormValues>>,
+  t: (key: TranslationKey, values?: Record<string, string | number>) => string,
 ) {
   switch (fieldDefinition.fieldType) {
     case 'textarea':
@@ -77,15 +81,15 @@ function renderInput(
     case 'boolean':
       return (
         <select id={inputId} {...registration}>
-          <option value="">Select a value</option>
-          <option value="true">True</option>
-          <option value="false">False</option>
+          <option value="">{t('inventory.form.selectValue')}</option>
+          <option value="true">{t('inventory.form.true')}</option>
+          <option value="false">{t('inventory.form.false')}</option>
         </select>
       )
     case 'select':
       return (
         <select id={inputId} {...registration}>
-          <option value="">Select an option</option>
+          <option value="">{t('inventory.form.selectOption')}</option>
           {fieldDefinition.options.map((option) => (
             <option key={option.id} value={option.value}>
               {option.label}

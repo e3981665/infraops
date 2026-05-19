@@ -16,6 +16,7 @@ import {
   areAttributeValueMapsEqual,
   getSitesForRegion,
 } from '@/modules/inventory/utils/inventory-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 interface InventoryItemFormProps {
   eyebrow: string
@@ -44,6 +45,7 @@ export function InventoryItemForm({
   onEntityTypeChange,
   onSubmit,
 }: InventoryItemFormProps) {
+  const { t } = useTranslation()
   const [submitError, setSubmitError] = useState<string | null>(null)
   const {
     control,
@@ -115,7 +117,7 @@ export function InventoryItemForm({
         return
       }
 
-      setSubmitError('InfraOps could not save the inventory item.')
+      setSubmitError(t('inventory.form.saveFailed'))
     }
   }
 
@@ -133,20 +135,20 @@ export function InventoryItemForm({
         <section className="form-section">
           <div className="form-section__heading">
             <div>
-              <h2>Inventory metadata</h2>
-              <p>Choose the operational context and fixed metadata for this infrastructure item.</p>
+              <h2>{t('inventory.form.metadata')}</h2>
+              <p>{t('inventory.form.metadataHelp')}</p>
             </div>
           </div>
 
           <div className="field-grid field-grid--three-columns">
             <div className="field">
-              <label htmlFor="inventoryEntityTypeId">Entity type</label>
+              <label htmlFor="inventoryEntityTypeId">{t('common.entityType')}</label>
               <select
                 id="inventoryEntityTypeId"
                 disabled={isEntityTypeLocked}
                 {...register('entityTypeId')}
               >
-                <option value="">Select an entity type</option>
+                <option value="">{t('inventory.form.selectEntityType')}</option>
                 {metadata.entityTypes.map((entityType) => (
                   <option key={entityType.id} value={entityType.id}>
                     {entityType.name}
@@ -159,9 +161,9 @@ export function InventoryItemForm({
             </div>
 
             <div className="field">
-              <label htmlFor="inventoryRegionId">Region</label>
+              <label htmlFor="inventoryRegionId">{t('common.region')}</label>
               <select id="inventoryRegionId" {...register('regionId')}>
-                <option value="">Select a region</option>
+                <option value="">{t('inventory.form.selectRegion')}</option>
                 {metadata.regions.map((region) => (
                   <option key={region.id} value={region.id}>
                     {region.name}
@@ -174,9 +176,9 @@ export function InventoryItemForm({
             </div>
 
             <div className="field">
-              <label htmlFor="inventorySiteId">Site</label>
+              <label htmlFor="inventorySiteId">{t('common.site')}</label>
               <select id="inventorySiteId" disabled={!regionId} {...register('siteId')}>
-                <option value="">Select a site</option>
+                <option value="">{t('inventory.form.selectSite')}</option>
                 {availableSites.map((site) => (
                   <option key={site.id} value={site.id}>
                     {site.name}
@@ -189,7 +191,7 @@ export function InventoryItemForm({
 
           <div className="field-grid field-grid--three-columns">
             <div className="field">
-              <label htmlFor="inventoryDisplayName">Display name</label>
+              <label htmlFor="inventoryDisplayName">{t('inventory.displayName')}</label>
               <input id="inventoryDisplayName" type="text" {...register('displayName')} />
               {errors.displayName ? (
                 <span className="field__error">{errors.displayName.message}</span>
@@ -197,9 +199,9 @@ export function InventoryItemForm({
             </div>
 
             <div className="field">
-              <label htmlFor="inventoryStatus">Status</label>
+              <label htmlFor="inventoryStatus">{t('common.status')}</label>
               <select id="inventoryStatus" {...register('status')}>
-                <option value="">Select a status</option>
+                <option value="">{t('inventory.form.selectStatus')}</option>
                 {metadata.statuses.map((status) => (
                   <option key={status.code} value={status.code}>
                     {status.label}
@@ -210,7 +212,7 @@ export function InventoryItemForm({
             </div>
 
             <div className="field">
-              <label htmlFor="inventoryInstallationDate">Installation date</label>
+              <label htmlFor="inventoryInstallationDate">{t('inventory.form.installationDate')}</label>
               <input id="inventoryInstallationDate" type="date" {...register('installationDate')} />
               {errors.installationDate ? (
                 <span className="field__error">{errors.installationDate.message}</span>
@@ -222,29 +224,29 @@ export function InventoryItemForm({
         <section className="form-section">
           <div className="form-section__heading">
             <div>
-              <h2>Dynamic attributes</h2>
-              <p>Field rendering and validation come directly from the selected entity type.</p>
+              <h2>{t('inventory.form.dynamicAttributes')}</h2>
+              <p>{t('inventory.form.dynamicAttributesHelp')}</p>
             </div>
           </div>
 
           {!metadata.entityTypes.length ? (
             <div className="empty-state">
-              <h2>No active entity types are available.</h2>
-              <p>Create or reactivate an entity type before registering inventory.</p>
+              <h2>{t('inventory.form.noActiveEntityTypes')}</h2>
+              <p>{t('inventory.form.noActiveEntityTypesHelp')}</p>
             </div>
           ) : null}
 
           {metadata.entityTypes.length > 0 && !entityTypeId ? (
             <div className="empty-state">
-              <h2>Select an entity type to continue.</h2>
-              <p>InfraOps will load the dynamic field definition after you choose an entity type.</p>
+              <h2>{t('inventory.form.selectEntityTypeTitle')}</h2>
+              <p>{t('inventory.form.selectEntityTypeHelp')}</p>
             </div>
           ) : null}
 
           {metadata.entityTypes.length > 0 && entityTypeId && isFormDefinitionLoading ? (
             <div className="empty-state">
-              <h2>Loading dynamic field definition.</h2>
-              <p>InfraOps is fetching the selected entity type configuration.</p>
+              <h2>{t('inventory.form.loadingDefinition')}</h2>
+              <p>{t('inventory.form.loadingDefinitionHelp')}</p>
             </div>
           ) : null}
 
@@ -270,8 +272,8 @@ export function InventoryItemForm({
           !isFormDefinitionLoading &&
           !formDefinition ? (
             <div className="empty-state">
-              <h2>The entity type definition could not be loaded.</h2>
-              <p>Refresh the page or choose a different active entity type.</p>
+              <h2>{t('inventory.form.definitionLoadFailed')}</h2>
+              <p>{t('inventory.form.definitionLoadFailedHelp')}</p>
             </div>
           ) : null}
         </section>
@@ -280,7 +282,7 @@ export function InventoryItemForm({
 
         <div className="form-actions">
           <button className="button" type="submit" disabled={isSubmitting || isFormDefinitionLoading}>
-            {isSubmitting ? 'Saving...' : submitLabel}
+            {isSubmitting ? t('common.saving') : submitLabel}
           </button>
         </div>
       </form>

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AuditMetadata } from '@/components/audit/AuditMetadata'
 import { StatusBadge } from '@/components/status/StatusBadge'
 import { useAuthSession } from '@/modules/auth/hooks/useAuthSession'
@@ -7,10 +7,14 @@ import { PreventiveExecutionForm } from '@/modules/preventive-executions/compone
 import { PreventiveValidationActionPanel } from '@/modules/preventive-validations/components/PreventiveValidationActionPanel'
 import { preventiveValidationQueryKeys } from '@/modules/preventive-validations/api/preventive-validation-query-keys'
 import { preventiveValidationsClient } from '@/modules/preventive-validations/api/preventive-validations-client'
-import { routePaths } from '@/shared/routing/route-paths'
+import { buildPreventiveValidationsPath } from '@/shared/routing/route-paths'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+import { localizeDemoText } from '@/shared/i18n/localized-domain-labels'
 
 export function PreventiveValidationDetailPage() {
+  const { locale, t } = useTranslation()
   const { preventiveExecutionId } = useParams()
+  const navigate = useNavigate()
   const { session } = useAuthSession()
   const queryClient = useQueryClient()
   const accessToken = session?.tokens.accessToken
@@ -24,35 +28,50 @@ export function PreventiveValidationDetailPage() {
   const approveMutation = useMutation({
     mutationFn: (comment: string | null) =>
       preventiveValidationsClient.approve(preventiveExecutionId!, { comment }, accessToken!),
-    onSuccess: (updated) => {
+    onSuccess: async (updated) => {
       queryClient.setQueryData(preventiveValidationQueryKeys.detail(updated.id), updated)
-      void queryClient.invalidateQueries({ queryKey: preventiveValidationQueryKeys.all })
+      await queryClient.invalidateQueries({ queryKey: preventiveValidationQueryKeys.all })
     },
   })
 
   const rejectMutation = useMutation({
     mutationFn: (reason: string) =>
       preventiveValidationsClient.reject(preventiveExecutionId!, { reason }, accessToken!),
-    onSuccess: (updated) => {
+    onSuccess: async (updated) => {
       queryClient.setQueryData(preventiveValidationQueryKeys.detail(updated.id), updated)
-      void queryClient.invalidateQueries({ queryKey: preventiveValidationQueryKeys.all })
+      await queryClient.invalidateQueries({ queryKey: preventiveValidationQueryKeys.all })
     },
   })
 
   const reworkMutation = useMutation({
     mutationFn: (reason: string) =>
       preventiveValidationsClient.requestRework(preventiveExecutionId!, { reason }, accessToken!),
-    onSuccess: (updated) => {
+    onSuccess: async (updated) => {
       queryClient.setQueryData(preventiveValidationQueryKeys.detail(updated.id), updated)
-      void queryClient.invalidateQueries({ queryKey: preventiveValidationQueryKeys.all })
+      await queryClient.invalidateQueries({ queryKey: preventiveValidationQueryKeys.all })
     },
   })
+
+  async function approveExecution(comment: string | null) {
+    await approveMutation.mutateAsync(comment)
+    navigate(buildPreventiveValidationsPath({ status: 'approved' }))
+  }
+
+  async function rejectExecution(reason: string) {
+    await rejectMutation.mutateAsync(reason)
+    navigate(buildPreventiveValidationsPath({ status: 'rejected' }))
+  }
+
+  async function requestExecutionRework(reason: string) {
+    await reworkMutation.mutateAsync(reason)
+    navigate(buildPreventiveValidationsPath({ status: 'reworkRequested' }))
+  }
 
   if (validationQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive validation</p>
-        <h1>Loading validation detail.</h1>
+        <p className="hero-panel__eyebrow">{t('validations.eyebrow')}</p>
+        <h1>{t('validations.loadingDetail')}</h1>
       </section>
     )
   }
@@ -60,8 +79,8 @@ export function PreventiveValidationDetailPage() {
   if (validationQuery.isError || !validationQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive validation</p>
-        <h1>Validation detail could not be loaded.</h1>
+        <p className="hero-panel__eyebrow">{t('validations.eyebrow')}</p>
+        <h1>{t('validations.detailLoadFailed')}</h1>
         <p>{validationQuery.error?.message}</p>
       </section>
     )
@@ -73,43 +92,47 @@ export function PreventiveValidationDetailPage() {
     <section className="module-panel">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Validation review</p>
+          <p className="hero-panel__eyebrow">{t('validations.reviewEyebrow')}</p>
           <h1>{execution.inventoryItemDisplayName}</h1>
         </div>
         <p>
-          <StatusBadge value={execution.status} /> {execution.preventiveTemplateName}
+          <StatusBadge value={execution.status} />{' '}
+          {localizeDemoText(execution.preventiveTemplateName, locale)}
         </p>
       </div>
 
       <div className="module-panel__actions">
-        <Link className="button--secondary" to={routePaths.preventiveValidations}>
-          Back to validation queue
+        <Link
+          className="button--secondary"
+          to={buildPreventiveValidationsPath({ status: execution.status })}
+        >
+          {t('validations.backToQueue')}
         </Link>
       </div>
 
       <dl className="definition-list definition-list--compact">
         <div>
-          <dt>Entity type</dt>
-          <dd>{execution.entityTypeName}</dd>
+          <dt>{t('common.entityType')}</dt>
+          <dd>{localizeDemoText(execution.entityTypeName, locale)}</dd>
         </div>
         <div>
-          <dt>Region</dt>
-          <dd>{execution.regionName}</dd>
+          <dt>{t('common.region')}</dt>
+          <dd>{localizeDemoText(execution.regionName, locale)}</dd>
         </div>
         <div>
-          <dt>Site</dt>
-          <dd>{execution.siteName}</dd>
+          <dt>{t('common.site')}</dt>
+          <dd>{localizeDemoText(execution.siteName, locale)}</dd>
         </div>
         <div>
-          <dt>Submitted by</dt>
-          <dd>{execution.submittedBy ?? 'Not submitted'}</dd>
+          <dt>{t('validations.submittedBy')}</dt>
+          <dd>{execution.submittedBy ?? t('validations.notSubmitted')}</dd>
         </div>
         <div>
-          <dt>Submitted at</dt>
+          <dt>{t('validations.submittedAt')}</dt>
           <dd>
             {execution.submittedAtUtc
               ? new Date(execution.submittedAtUtc).toLocaleString()
-              : 'Not submitted'}
+              : t('validations.notSubmitted')}
           </dd>
         </div>
       </dl>
@@ -125,33 +148,35 @@ export function PreventiveValidationDetailPage() {
 
       <PreventiveValidationActionPanel
         status={execution.status}
-        onApprove={(comment) => approveMutation.mutateAsync(comment).then(() => undefined)}
-        onReject={(reason) => rejectMutation.mutateAsync(reason).then(() => undefined)}
-        onRequestRework={(reason) => reworkMutation.mutateAsync(reason).then(() => undefined)}
+        onApprove={approveExecution}
+        onReject={rejectExecution}
+        onRequestRework={requestExecutionRework}
       />
 
       <section className="form-section">
-        <h2>Validation history</h2>
+        <h2>{t('executions.validationHistory')}</h2>
         {execution.validationHistory.length === 0 ? (
-          <p>No validation actions have been recorded.</p>
+          <p>{t('validations.noHistory')}</p>
         ) : (
           <div className="table-panel">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th scope="col">Action</th>
-                  <th scope="col">Validator</th>
-                  <th scope="col">When</th>
-                  <th scope="col">Comment</th>
+                  <th scope="col">{t('common.action')}</th>
+                  <th scope="col">{t('common.validator')}</th>
+                  <th scope="col">{t('common.when')}</th>
+                  <th scope="col">{t('common.comment')}</th>
                 </tr>
               </thead>
               <tbody>
                 {execution.validationHistory.map((record) => (
                   <tr key={record.id}>
-                    <td>{record.actionType}</td>
+                    <td>
+                      <StatusBadge value={record.actionType} />
+                    </td>
                     <td>{record.validatorUserId}</td>
                     <td>{new Date(record.createdAtUtc).toLocaleString()}</td>
-                    <td>{record.comment ?? ''}</td>
+                    <td>{localizeDemoText(record.comment, locale)}</td>
                   </tr>
                 ))}
               </tbody>

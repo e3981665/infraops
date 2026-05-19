@@ -7,8 +7,11 @@ import { useAuthSession } from '@/modules/auth/hooks/useAuthSession'
 import { inventoryClient } from '@/modules/inventory/api/inventory-client'
 import { inventoryQueryKeys } from '@/modules/inventory/api/inventory-query-keys'
 import { buildInventoryEditPath, routePaths } from '@/shared/routing/route-paths'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+import { localizeDemoText } from '@/shared/i18n/localized-domain-labels'
 
 export function InventoryDetailPage() {
+  const { locale, t } = useTranslation()
   const { inventoryItemId } = useParams()
   const queryClient = useQueryClient()
   const { hasPermission, session } = useAuthSession()
@@ -44,9 +47,9 @@ export function InventoryDetailPage() {
   if (!inventoryItemId || !accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Inventory item could not be resolved.</h1>
-        <p>The detail route requires a valid item id and an authenticated session.</p>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('inventory.unresolvedTitle')}</h1>
+        <p>{t('inventory.detailUnresolvedHelp')}</p>
       </section>
     )
   }
@@ -54,9 +57,9 @@ export function InventoryDetailPage() {
   if (inventoryItemQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Loading inventory item.</h1>
-        <p>InfraOps is fetching the stored metadata and dynamic attributes for review.</p>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('inventory.loadingItem')}</h1>
+        <p>{t('inventory.detailLoadingHelp')}</p>
       </section>
     )
   }
@@ -64,9 +67,9 @@ export function InventoryDetailPage() {
   if (inventoryItemQuery.isError || !inventoryItemQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Inventory item could not be loaded.</h1>
-        <p>{inventoryItemQuery.error?.message ?? 'The inventory item was not found.'}</p>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('inventory.itemLoadFailed')}</h1>
+        <p>{inventoryItemQuery.error?.message ?? t('inventory.notFound')}</p>
       </section>
     )
   }
@@ -77,22 +80,21 @@ export function InventoryDetailPage() {
     <section className="module-panel">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Inventory management</p>
+          <p className="hero-panel__eyebrow">{t('inventory.management')}</p>
           <h1>{inventoryItem.displayName}</h1>
         </div>
         <p>
-          Review the stored inventory metadata and dynamic attribute values that
-          future preventive modules will reference.
+          {t('inventory.detailDescription')}
         </p>
       </div>
 
       <div className="module-panel__actions">
         <Link className="button--secondary" to={routePaths.inventory}>
-          Back to list
+          {t('common.backToList')}
         </Link>
         {canWrite ? (
           <Link className="button--secondary" to={buildInventoryEditPath(inventoryItem.id)}>
-            Edit item
+            {t('inventory.editItem')}
           </Link>
         ) : null}
         {canWrite ? (
@@ -108,44 +110,45 @@ export function InventoryDetailPage() {
               void activateMutation.mutateAsync()
             }}
           >
-            {inventoryItem.isActive ? 'Deactivate item' : 'Activate item'}
+            {inventoryItem.isActive ? t('inventory.deactivateItem') : t('inventory.activateItem')}
           </button>
         ) : null}
       </div>
 
       <div className="detail-grid">
         <article className="card">
-          <h2>Metadata</h2>
+          <h2>{t('common.metadata')}</h2>
           <dl className="definition-list">
             <div>
-              <dt>Entity type</dt>
+              <dt>{t('common.entityType')}</dt>
               <dd>
-                {inventoryItem.entityTypeName} <code>{inventoryItem.entityTypeCode}</code>
+                {localizeDemoText(inventoryItem.entityTypeName, locale)}{' '}
+                <code>{inventoryItem.entityTypeCode}</code>
               </dd>
             </div>
             <div>
-              <dt>Region</dt>
-              <dd>{inventoryItem.regionName}</dd>
+              <dt>{t('common.region')}</dt>
+              <dd>{localizeDemoText(inventoryItem.regionName, locale)}</dd>
             </div>
             <div>
-              <dt>Site</dt>
-              <dd>{inventoryItem.siteName}</dd>
+              <dt>{t('common.site')}</dt>
+              <dd>{localizeDemoText(inventoryItem.siteName, locale)}</dd>
             </div>
             <div>
-              <dt>Status</dt>
+              <dt>{t('common.status')}</dt>
               <dd>
                 <StatusBadge value={inventoryItem.status} />
               </dd>
             </div>
             <div>
-              <dt>Lifecycle</dt>
+              <dt>{t('common.lifecycle')}</dt>
               <dd>
                 <StatusBadge value={inventoryItem.isActive ? 'active' : 'inactive'} />
               </dd>
             </div>
             <div>
-              <dt>Installation date</dt>
-              <dd>{inventoryItem.installationDate ?? 'Not defined'}</dd>
+              <dt>{t('inventory.form.installationDate')}</dt>
+              <dd>{inventoryItem.installationDate ?? t('common.notDefined')}</dd>
             </div>
           </dl>
         </article>
@@ -160,15 +163,15 @@ export function InventoryDetailPage() {
       <section className="form-section">
         <div className="form-section__heading">
           <div>
-            <h2>Dynamic attributes</h2>
-            <p>Values are stored against the active field definitions from the selected entity type.</p>
+            <h2>{t('inventory.form.dynamicAttributes')}</h2>
+            <p>{t('inventory.dynamicAttributesStoredHelp')}</p>
           </div>
         </div>
 
         {inventoryItem.attributeValues.length === 0 ? (
           <div className="empty-state">
-            <h2>No dynamic attributes are stored.</h2>
-            <p>This inventory item currently relies on fixed metadata only.</p>
+            <h2>{t('inventory.noDynamicAttributes')}</h2>
+            <p>{t('inventory.noDynamicAttributesHelp')}</p>
           </div>
         ) : (
           <div className="dynamic-field-list">
@@ -176,17 +179,17 @@ export function InventoryDetailPage() {
               <article className="dynamic-field-card" key={attributeValue.fieldKey}>
                 <dl className="definition-list">
                   <div>
-                    <dt>{attributeValue.displayLabel}</dt>
+                    <dt>{localizeDemoText(attributeValue.displayLabel, locale)}</dt>
                     <dd>{attributeValue.value}</dd>
                   </div>
                   <div>
-                    <dt>Field key</dt>
+                    <dt>{t('entity.form.fieldKey')}</dt>
                     <dd>
                       <code>{attributeValue.fieldKey}</code>
                     </dd>
                   </div>
                   <div>
-                    <dt>Field type</dt>
+                    <dt>{t('entity.form.fieldType')}</dt>
                     <dd>{attributeValue.fieldType}</dd>
                   </div>
                 </dl>

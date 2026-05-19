@@ -7,6 +7,9 @@ import type {
   PreventiveExecutionTemplateItem,
   PreventiveExecutionTemplateSection,
 } from '@/modules/preventive-executions/types/preventive-execution'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+import type { SupportedLocale, TranslationKey } from '@/shared/i18n/translations'
+import { localizeDemoText } from '@/shared/i18n/localized-domain-labels'
 
 interface PreventiveExecutionFormValues {
   answers: Record<string, { value: string; comment: string }>
@@ -29,6 +32,7 @@ export function PreventiveExecutionForm({
   onSaveDraft,
   onSubmitExecution,
 }: PreventiveExecutionFormProps) {
+  const { locale, t } = useTranslation()
   const [submitError, setSubmitError] = useState<string | null>(null)
   const initialValues = useMemo(() => buildInitialValues(sections, initialAnswers), [
     initialAnswers,
@@ -57,7 +61,7 @@ export function PreventiveExecutionForm({
     try {
       await onSaveDraft?.(mapAnswers(getValues()))
     } catch (error) {
-      setSubmitError(getErrorMessage(error, 'InfraOps could not save the draft.'))
+      setSubmitError(getErrorMessage(error, t('executionForm.draftSaveFailed')))
     }
   }
 
@@ -65,15 +69,15 @@ export function PreventiveExecutionForm({
     setSubmitError(null)
     clearErrors()
 
-    if (!validateRequiredAnswers(sections, getValues(), setError)) {
-      setSubmitError('Complete required checklist items before submission.')
+    if (!validateRequiredAnswers(sections, getValues(), setError, t)) {
+      setSubmitError(t('executionForm.requiredBeforeSubmit'))
       return
     }
 
     try {
       await onSubmitExecution?.(mapAnswers(getValues()))
     } catch (error) {
-      setSubmitError(getErrorMessage(error, 'InfraOps could not submit the execution.'))
+      setSubmitError(getErrorMessage(error, t('executionForm.submitFailed')))
     }
   }
 
@@ -86,7 +90,7 @@ export function PreventiveExecutionForm({
             <section className="dynamic-field-card" key={section.id}>
               <div className="form-section__heading">
                 <div>
-                  <h2>{section.title}</h2>
+                  <h2>{localizeDemoText(section.title, locale)}</h2>
                 </div>
               </div>
 
@@ -118,7 +122,7 @@ export function PreventiveExecutionForm({
             type="button"
             onClick={() => void handleSaveDraft()}
           >
-            Save draft
+            {t('executionForm.saveDraft')}
           </button>
           <button
             className="button"
@@ -126,7 +130,7 @@ export function PreventiveExecutionForm({
             type="button"
             onClick={() => void handleSubmitExecution()}
           >
-            Submit
+            {t('common.submit')}
           </button>
         </div>
       ) : null}
@@ -149,37 +153,64 @@ function PreventiveExecutionItemField({
   item,
   register,
 }: PreventiveExecutionItemFieldProps) {
+  const { locale, t } = useTranslation()
   const value = useWatch({
     control,
     name: `answers.${item.itemKey}.value`,
   })
+  const comment = useWatch({
+    control,
+    name: `answers.${item.itemKey}.comment`,
+  })
+  const [isCommentOpen, setIsCommentOpen] = useState(false)
+  const hasExistingComment = Boolean(comment?.trim())
   const showFailureComment =
     item.requiresCommentOnFailure &&
     item.itemType === 'yesNo' &&
     (value === 'false' || value === 'no')
+  const showEditableComment = showFailureComment || isCommentOpen || hasExistingComment
 
   return (
     <div className="field execution-item">
       <label htmlFor={`execution-${item.itemKey}`}>
-        {item.label}
-        {item.isRequired ? <span aria-label="required"> *</span> : null}
+        {localizeDemoText(item.label, locale)}
+        {item.isRequired ? <span aria-label={t('common.required')}> *</span> : null}
       </label>
 
-      {renderAnswerInput(item, isReadOnly, register)}
+      {renderAnswerInput(item, isReadOnly, register, t, locale)}
 
-      {item.helpText ? <span className="field__hint">{item.helpText}</span> : null}
+      {item.helpText ? (
+        <span className="field__hint">{localizeDemoText(item.helpText, locale)}</span>
+      ) : null}
       {item.itemType === 'numeric' && (item.minimumValue !== null || item.maximumValue !== null) ? (
         <span className="field__hint">
-          Expected range {item.minimumValue ?? 'any'} to {item.maximumValue ?? 'any'}
+          {t('executionForm.expectedRange', {
+            min: item.minimumValue ?? t('common.any'),
+            max: item.maximumValue ?? t('common.any'),
+          })}
         </span>
       ) : null}
       {error ? <span className="field__error">{error}</span> : null}
 
-      {showFailureComment && !isReadOnly ? (
+      {!isReadOnly && !showEditableComment ? (
+        <button
+          className="button--secondary execution-item__comment-toggle"
+          type="button"
+          onClick={() => setIsCommentOpen(true)}
+        >
+          {t('executionForm.addComment')}
+        </button>
+      ) : null}
+
+      {showEditableComment && !isReadOnly ? (
         <div className="field">
-          <label htmlFor={`execution-${item.itemKey}-comment`}>Comment</label>
+          <label htmlFor={`execution-${item.itemKey}-comment`}>
+            {t('common.comment')}
+            {showFailureComment ? <span aria-label={t('common.required')}> *</span> : null}
+          </label>
           <textarea
             id={`execution-${item.itemKey}-comment`}
+            placeholder={t('executionForm.commentPlaceholder')}
             {...register(`answers.${item.itemKey}.comment`)}
           />
         </div>
@@ -187,7 +218,7 @@ function PreventiveExecutionItemField({
 
       {isReadOnly ? (
         <div className="field">
-          <label htmlFor={`execution-${item.itemKey}-comment`}>Comment</label>
+          <label htmlFor={`execution-${item.itemKey}-comment`}>{t('common.comment')}</label>
           <textarea
             id={`execution-${item.itemKey}-comment`}
             readOnly
@@ -203,6 +234,8 @@ function renderAnswerInput(
   item: PreventiveExecutionTemplateItem,
   isReadOnly: boolean,
   register: UseFormRegister<PreventiveExecutionFormValues>,
+  t: (key: TranslationKey, values?: Record<string, string | number>) => string,
+  locale: SupportedLocale,
 ) {
   const fieldName = `answers.${item.itemKey}.value` as const
   const id = `execution-${item.itemKey}`
@@ -210,9 +243,9 @@ function renderAnswerInput(
   if (item.itemType === 'yesNo') {
     return (
       <select id={id} disabled={isReadOnly} {...register(fieldName)}>
-        <option value="">Choose</option>
-        <option value="true">Yes</option>
-        <option value="false">No</option>
+        <option value="">{t('common.choose')}</option>
+        <option value="true">{t('common.yes')}</option>
+        <option value="false">{t('common.no')}</option>
       </select>
     )
   }
@@ -232,12 +265,12 @@ function renderAnswerInput(
   if (item.itemType === 'select') {
     return (
       <select id={id} disabled={isReadOnly} {...register(fieldName)}>
-        <option value="">Choose</option>
+        <option value="">{t('common.choose')}</option>
         {[...item.options]
           .sort((left, right) => left.displayOrder - right.displayOrder)
           .map((option) => (
             <option key={option.id} value={option.value}>
-              {option.label}
+              {localizeDemoText(option.label, locale)}
             </option>
           ))}
       </select>
@@ -281,6 +314,7 @@ function validateRequiredAnswers(
   sections: PreventiveExecutionTemplateSection[],
   values: PreventiveExecutionFormValues,
   setError: ReturnType<typeof useForm<PreventiveExecutionFormValues>>['setError'],
+  t: (key: TranslationKey, values?: Record<string, string | number>) => string,
 ) {
   let isValid = true
 
@@ -292,7 +326,7 @@ function validateRequiredAnswers(
       if (item.isRequired && !answer?.value?.trim()) {
         setError(`answers.${item.itemKey}.value`, {
           type: 'required',
-          message: 'This checklist item is required.',
+          message: t('executionForm.requiredItem'),
         })
         isValid = false
       }
@@ -305,7 +339,7 @@ function validateRequiredAnswers(
       ) {
         setError(`answers.${item.itemKey}.value`, {
           type: 'required',
-          message: 'A comment is required when this item fails.',
+          message: t('executionForm.commentRequiredOnFailure'),
         })
         isValid = false
       }

@@ -9,8 +9,10 @@ import {
   buildPreventiveTemplateDetailPath,
 } from '@/shared/routing/route-paths'
 import { createDefaultPreventiveTemplateFormValues } from '@/modules/preventive-templates/utils/preventive-template-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 export function PreventiveTemplateCreatePage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { session } = useAuthSession()
@@ -38,9 +40,9 @@ export function PreventiveTemplateCreatePage() {
   if (!accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive template administration</p>
-        <h1>Authenticated access is required.</h1>
-        <p>The admin workspace is waiting for a valid session.</p>
+        <p className="hero-panel__eyebrow">{t('templates.detail.administration')}</p>
+        <h1>{t('common.authRequired')}</h1>
+        <p>{t('templates.authMessage')}</p>
       </section>
     )
   }
@@ -48,9 +50,9 @@ export function PreventiveTemplateCreatePage() {
   if (metadataQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive template administration</p>
-        <h1>Loading preventive template metadata.</h1>
-        <p>InfraOps is preparing the template definition form.</p>
+        <p className="hero-panel__eyebrow">{t('templates.detail.administration')}</p>
+        <h1>{t('templates.metadataLoading')}</h1>
+        <p>{t('templates.metadataLoadingHelp')}</p>
       </section>
     )
   }
@@ -58,19 +60,19 @@ export function PreventiveTemplateCreatePage() {
   if (metadataQuery.isError || !metadataQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive template administration</p>
-        <h1>Preventive template metadata could not be loaded.</h1>
-        <p>{metadataQuery.error?.message ?? 'The required lookup data was not found.'}</p>
+        <p className="hero-panel__eyebrow">{t('templates.detail.administration')}</p>
+        <h1>{t('templates.metadataLoadFailed')}</h1>
+        <p>{metadataQuery.error?.message ?? t('templates.lookupDataMissing')}</p>
       </section>
     )
   }
 
   return (
     <PreventiveTemplateForm
-      eyebrow="Preventive template administration"
-      title="Create a preventive template"
-      description="Define the entity-type checklist structure that future execution flows will render."
-      submitLabel="Save preventive template"
+      eyebrow={t('templates.detail.administration')}
+      title={t('templates.create.title')}
+      description={t('templates.create.description')}
+      submitLabel={t('templates.save')}
       initialValues={createDefaultPreventiveTemplateFormValues(metadataQuery.data)}
       entityTypeOptions={metadataQuery.data.entityTypes}
       onSubmit={async (values) => {

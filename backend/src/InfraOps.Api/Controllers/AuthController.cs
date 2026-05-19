@@ -6,8 +6,10 @@ using InfraOps.Application.Identity.Commands.Logout;
 using InfraOps.Application.Identity.Commands.RefreshAccessToken;
 using InfraOps.Application.Identity.Dtos;
 using InfraOps.Application.Identity.Queries.GetCurrentUser;
+using InfraOps.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace InfraOps.Api.Controllers;
 
@@ -19,35 +21,52 @@ public sealed class AuthController : ControllerBase
     private readonly ICommandHandler<RefreshAccessTokenCommand, AuthenticationTokensDto> _refreshHandler;
     private readonly ICommandHandler<LogoutCommand> _logoutHandler;
     private readonly IQueryHandler<GetCurrentUserQuery, CurrentUserDto> _currentUserHandler;
+    private readonly ILogger<AuthController> _logger;
 
     public AuthController(
         ICommandHandler<LoginCommand, AuthenticationTokensDto> loginHandler,
         ICommandHandler<RefreshAccessTokenCommand, AuthenticationTokensDto> refreshHandler,
         ICommandHandler<LogoutCommand> logoutHandler,
-        IQueryHandler<GetCurrentUserQuery, CurrentUserDto> currentUserHandler)
+        IQueryHandler<GetCurrentUserQuery, CurrentUserDto> currentUserHandler,
+        ILogger<AuthController> logger)
     {
         _loginHandler = loginHandler;
         _refreshHandler = refreshHandler;
         _logoutHandler = logoutHandler;
         _currentUserHandler = currentUserHandler;
+        _logger = logger;
     }
 
     [AllowAnonymous]
     [HttpPost("login")]
+    [EnableRateLimiting(DependencyInjection.AuthSensitiveRateLimitPolicy)]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<TokenResponse>> Login(
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _loginHandler.Handle(
-            new LoginCommand(request.Email, request.Password),
-            cancellationToken);
+        AuthenticationTokensDto result;
+
+        try
+        {
+            result = await _loginHandler.Handle(
+                new LoginCommand(request.Email, request.Password),
+                cancellationToken);
+        }
+        catch (ApplicationUnauthorizedException)
+        {
+            _logger.LogWarning("Login failed for {Email}.", request.Email);
+            throw;
+        }
+
+        _logger.LogInformation("Login succeeded for {Email}.", request.Email);
 
         return Ok(MapTokenResponse(result));
     }
 
     [AllowAnonymous]
     [HttpPost("refresh")]
+    [EnableRateLimiting(DependencyInjection.AuthSensitiveRateLimitPolicy)]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<TokenResponse>> Refresh(
         [FromBody] RefreshTokenRequest request,

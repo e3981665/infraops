@@ -1,8 +1,8 @@
+import { PageState } from '@/components/ui/PageState'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+
 export function RouteLoadingFallback() {
-  return (
-    <section className="status-panel status-panel--compact">
-      <p className="hero-panel__eyebrow">InfraOps</p>
-      <h1>Loading workspace view.</h1>
-    </section>
-  )
+  const { t } = useTranslation()
+
+  return <PageState className="status-panel--compact" title={t('common.loadingWorkspace')} />
 }

@@ -1,4 +1,6 @@
 import { Component, type ErrorInfo, type PropsWithChildren, type ReactNode } from 'react'
+import { PageState } from '@/components/ui/PageState'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 interface AppErrorBoundaryState {
   hasError: boolean
@@ -19,18 +21,25 @@ export class AppErrorBoundary extends Component<PropsWithChildren, AppErrorBound
 
   public render(): ReactNode {
     if (this.state.hasError) {
-      return (
-        <section className="status-panel">
-          <p className="hero-panel__eyebrow">InfraOps</p>
-          <h1>This workspace view could not be loaded.</h1>
-          <p>Refresh the page and try again. If the issue persists, check the API and frontend logs.</p>
-          <button className="button" type="button" onClick={() => window.location.reload()}>
-            Reload view
-          </button>
-        </section>
-      )
+      return <AppErrorFallback />
     }
 
     return this.props.children
   }
+}
+
+function AppErrorFallback() {
+  const { t } = useTranslation()
+
+  return (
+    <PageState
+      title={t('common.viewFailed')}
+      message={t('common.viewFailedMessage')}
+      action={
+        <button className="button" type="button" onClick={() => window.location.reload()}>
+          {t('common.reloadView')}
+        </button>
+      }
+    />
+  )
 }

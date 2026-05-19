@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { PreventiveTemplateForm } from '@/modules/preventive-templates/components/PreventiveTemplateForm'
@@ -6,6 +6,7 @@ import {
   createDefaultPreventiveTemplateFormValues,
   mapPreventiveTemplateToFormValues,
 } from '@/modules/preventive-templates/utils/preventive-template-form-utils'
+import { renderWithProviders } from '@/app/test/render-with-providers'
 
 const entityTypeOptions = [
   {
@@ -19,7 +20,7 @@ describe('PreventiveTemplateForm', () => {
   it('should validate required fields before submission', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithProviders(
       <PreventiveTemplateForm
         eyebrow="Preventive template administration"
         title="Create preventive template"
@@ -49,7 +50,7 @@ describe('PreventiveTemplateForm', () => {
   it('should show the options editor when the item type is select', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithProviders(
       <PreventiveTemplateForm
         eyebrow="Preventive template administration"
         title="Create preventive template"
@@ -70,7 +71,7 @@ describe('PreventiveTemplateForm', () => {
   it('should show numeric bounds when the item type is numeric', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithProviders(
       <PreventiveTemplateForm
         eyebrow="Preventive template administration"
         title="Create preventive template"
@@ -91,7 +92,7 @@ describe('PreventiveTemplateForm', () => {
   it('should hide the options editor when the item type is changed away from select', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithProviders(
       <PreventiveTemplateForm
         eyebrow="Preventive template administration"
         title="Edit preventive template"

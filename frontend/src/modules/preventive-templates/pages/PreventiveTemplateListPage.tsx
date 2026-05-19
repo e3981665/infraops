@@ -6,11 +6,13 @@ import { permissionCodes } from '@/modules/auth/authorization/permission-codes'
 import { preventiveTemplateQueryKeys } from '@/modules/preventive-templates/api/preventive-template-query-keys'
 import { preventiveTemplatesClient } from '@/modules/preventive-templates/api/preventive-templates-client'
 import type { PreventiveTemplateListFilters } from '@/modules/preventive-templates/types/preventive-template'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 import {
   buildPreventiveTemplateDetailPath,
   buildPreventiveTemplateEditPath,
   routePaths,
 } from '@/shared/routing/route-paths'
+import { localizeDemoText } from '@/shared/i18n/localized-domain-labels'
 
 const defaultFilters: PreventiveTemplateListFilters = {
   entityTypeId: '',
@@ -21,6 +23,7 @@ const defaultFilters: PreventiveTemplateListFilters = {
 export function PreventiveTemplateListPage() {
   const queryClient = useQueryClient()
   const { hasPermission, session } = useAuthSession()
+  const { locale, t } = useTranslation()
   const accessToken = session?.tokens.accessToken
   const canWrite = hasPermission(permissionCodes.preventiveTemplatesWrite)
   const [filters, setFilters] = useState<PreventiveTemplateListFilters>(defaultFilters)
@@ -66,9 +69,9 @@ export function PreventiveTemplateListPage() {
   if (!accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive templates</p>
-        <h1>Authenticated access is required.</h1>
-        <p>The preventive template workspace is waiting for a valid session.</p>
+        <p className="hero-panel__eyebrow">{t('templates.eyebrow')}</p>
+        <h1>{t('common.authRequired')}</h1>
+        <p>{t('templates.authMessage')}</p>
       </section>
     )
   }
@@ -76,9 +79,9 @@ export function PreventiveTemplateListPage() {
   if (metadataQuery.isLoading || templatesQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive templates</p>
-        <h1>Loading preventive templates.</h1>
-        <p>InfraOps is fetching current checklist definitions and filter metadata.</p>
+        <p className="hero-panel__eyebrow">{t('templates.eyebrow')}</p>
+        <h1>{t('templates.loadingTitle')}</h1>
+        <p>{t('templates.loadingMessage')}</p>
       </section>
     )
   }
@@ -86,8 +89,8 @@ export function PreventiveTemplateListPage() {
   if (metadataQuery.isError || templatesQuery.isError || !metadataQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive templates</p>
-        <h1>Preventive templates could not be loaded.</h1>
+        <p className="hero-panel__eyebrow">{t('templates.eyebrow')}</p>
+        <h1>{t('templates.errorTitle')}</h1>
         <p>{metadataQuery.error?.message ?? templatesQuery.error?.message}</p>
       </section>
     )
@@ -99,19 +102,16 @@ export function PreventiveTemplateListPage() {
     <section className="module-panel">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Preventive template administration</p>
-          <h1>Preventive templates by entity type.</h1>
+          <p className="hero-panel__eyebrow">{t('templates.management')}</p>
+          <h1>{t('templates.listTitle')}</h1>
         </div>
-        <p>
-          Define reusable checklist structures that future preventive execution flows will
-          render dynamically.
-        </p>
+        <p>{t('templates.listDescription')}</p>
       </div>
 
       <div className="module-panel__actions">
         {canWrite ? (
           <Link className="button" to={routePaths.preventiveTemplateCreate}>
-            Create preventive template
+            {t('templates.create')}
           </Link>
         ) : null}
       </div>
@@ -119,14 +119,14 @@ export function PreventiveTemplateListPage() {
       <section className="form-section">
         <div className="form-section__heading">
           <div>
-            <h2>Filters</h2>
-            <p>Refine the list by entity type, lifecycle state, or free-text search.</p>
+            <h2>{t('common.filters')}</h2>
+            <p>{t('templates.filterHelp')}</p>
           </div>
         </div>
 
         <div className="field-grid field-grid--three-columns">
           <div className="field">
-            <label htmlFor="preventiveTemplateFilterEntityType">Entity type</label>
+            <label htmlFor="preventiveTemplateFilterEntityType">{t('common.entityType')}</label>
             <select
               id="preventiveTemplateFilterEntityType"
               value={filters.entityTypeId}
@@ -137,17 +137,17 @@ export function PreventiveTemplateListPage() {
                 }))
               }}
             >
-              <option value="">All entity types</option>
+              <option value="">{t('common.allEntityTypes')}</option>
               {metadataQuery.data.entityTypes.map((entityType) => (
                 <option key={entityType.id} value={entityType.id}>
-                  {entityType.name}
+                  {localizeDemoText(entityType.name, locale)}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="field">
-            <label htmlFor="preventiveTemplateFilterActivity">Lifecycle state</label>
+            <label htmlFor="preventiveTemplateFilterActivity">{t('common.lifecycle')}</label>
             <select
               id="preventiveTemplateFilterActivity"
               value={filters.isActive}
@@ -158,19 +158,19 @@ export function PreventiveTemplateListPage() {
                 }))
               }}
             >
-              <option value="">All templates</option>
-              <option value="true">Active only</option>
-              <option value="false">Inactive only</option>
+              <option value="">{t('templates.allTemplates')}</option>
+              <option value="true">{t('inventory.activeOnly')}</option>
+              <option value="false">{t('inventory.inactiveOnly')}</option>
             </select>
           </div>
 
           <div className="field">
-            <label htmlFor="preventiveTemplateFilterSearch">Search</label>
+            <label htmlFor="preventiveTemplateFilterSearch">{t('common.search')}</label>
             <input
               id="preventiveTemplateFilterSearch"
               type="text"
               value={filters.search}
-              placeholder="Template name or code"
+              placeholder={t('templates.searchPlaceholder')}
               onChange={(event) => {
                 setFilters((currentFilters) => ({
                   ...currentFilters,
@@ -184,37 +184,39 @@ export function PreventiveTemplateListPage() {
 
       {templates.length === 0 ? (
         <div className="empty-state">
-          <h2>No preventive templates match the current filters.</h2>
-          <p>Create the first template or loosen the filters to review the catalog.</p>
+          <h2>{t('templates.emptyTitle')}</h2>
+          <p>{t('templates.emptyMessage')}</p>
         </div>
       ) : (
         <div className="table-panel">
           <table className="data-table">
             <thead>
               <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Code</th>
-                <th scope="col">Entity type</th>
-                <th scope="col">Status</th>
-                <th scope="col">Sections</th>
-                <th scope="col">Checklist items</th>
-                <th scope="col">Actions</th>
+                <th scope="col">{t('templates.name')}</th>
+                <th scope="col">{t('templates.code')}</th>
+                <th scope="col">{t('common.entityType')}</th>
+                <th scope="col">{t('common.status')}</th>
+                <th scope="col">{t('templates.sections')}</th>
+                <th scope="col">{t('templates.checklistItems')}</th>
+                <th scope="col">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {templates.map((template) => (
                 <tr key={template.id}>
                   <td>
-                    <strong>{template.name}</strong>
-                    {template.description ? <small>{template.description}</small> : null}
+                    <strong>{localizeDemoText(template.name, locale)}</strong>
+                    {template.description ? (
+                      <small>{localizeDemoText(template.description, locale)}</small>
+                    ) : null}
                   </td>
                   <td>
                     <code>{template.code}</code>
                   </td>
-                  <td>{template.entityTypeName}</td>
+                  <td>{localizeDemoText(template.entityTypeName, locale)}</td>
                   <td>
                     <span className={`status-chip${template.isActive ? '' : ' status-chip--inactive'}`}>
-                      {template.isActive ? 'Active' : 'Inactive'}
+                      {template.isActive ? t('common.active') : t('common.inactive')}
                     </span>
                   </td>
                   <td>{template.sectionCount}</td>
@@ -225,14 +227,14 @@ export function PreventiveTemplateListPage() {
                         className="button--secondary"
                         to={buildPreventiveTemplateDetailPath(template.id)}
                       >
-                        View
+                        {t('common.view')}
                       </Link>
                       {canWrite ? (
                         <Link
                           className="button--secondary"
                           to={buildPreventiveTemplateEditPath(template.id)}
                         >
-                          Edit
+                          {t('common.edit')}
                         </Link>
                       ) : null}
                       {canWrite ? (
@@ -248,7 +250,7 @@ export function PreventiveTemplateListPage() {
                             void activateMutation.mutateAsync(template.id)
                           }}
                         >
-                          {template.isActive ? 'Deactivate' : 'Activate'}
+                          {template.isActive ? t('common.deactivate') : t('common.activate')}
                         </button>
                       ) : null}
                     </div>

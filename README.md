@@ -15,7 +15,7 @@ For reviewers, the project is intended to show more than CRUD screens. It demons
 ## Technical Highlights
 
 - Clean Architecture backend with explicit Domain, Application, Infrastructure, and API boundaries.
-- Permission-based JWT authentication with refresh token rotation.
+- Permission-based JWT authentication with hashed, rotating refresh tokens.
 - Configurable Entity Types with dynamic inventory field definitions.
 - Preventive Templates with ordered sections, checklist item types, numeric bounds, select options, and failure-comment rules.
 - Preventive Executions store immutable template snapshots so later template edits do not corrupt historical records.
@@ -23,7 +23,12 @@ For reviewers, the project is intended to show more than CRUD screens. It demons
 - Operational Dashboard exposes projection-based metrics for inventory, executions, validations, and templates.
 - React frontend uses route-level lazy loading, TanStack Query, React Hook Form, and Zod.
 - Docker Compose runs frontend, API, PostgreSQL, migrations, and demo seed data together.
+- Security hardening includes safe error responses, correlation IDs, auth rate limiting, conservative API security headers, Dependabot, and CodeQL.
 - Backend and frontend tests cover domain rules, application use cases, API flows, and key UI behavior.
+
+## Frontend Visual System
+
+InfraOps uses a compact enterprise operations style inspired by classic admin consoles: a dark navy workspace sidebar, light-gray content canvas, white data cards, strong table headers, restrained blue/teal accents, and reusable state surfaces for loading, empty, and error views. Shared CSS primitives such as `module-panel`, `data-table`, `metric-card`, `status-chip`, `field`, and `status-panel` keep dashboard, inventory, template, execution, and validation screens visually consistent without duplicating page-specific styling.
 
 ## Architecture Decisions
 
@@ -34,7 +39,7 @@ For reviewers, the project is intended to show more than CRUD screens. It demons
 - **Projection-based dashboard queries:** dashboard endpoints read aggregated operational facts without loading full aggregates or mutating workflow state.
 - **Docker-first development:** the standard demo path avoids machine-specific setup and keeps PostgreSQL, API, and frontend behavior consistent.
 
-More detail is available in [docs/index.md](docs/index.md).
+More detail is available in [docs/index.md](docs/index.md), including the [security model](docs/security.md).
 
 ## Screenshots
 
@@ -85,6 +90,13 @@ Services:
 - health check: `http://localhost:8080/health`
 - postgres: `localhost:5432`
 
+Inspect runtime logs:
+
+```powershell
+docker compose -f .\compose.dev.yml logs -f api
+docker compose -f .\compose.dev.yml logs -f frontend
+```
+
 Stop the stack:
 
 ```powershell
@@ -99,35 +111,74 @@ docker compose -f .\compose.dev.yml down -v
 
 The API applies EF Core migrations and idempotent development seed data on startup.
 
+API responses include `X-Correlation-ID`. Error responses also include `correlationId` so a UI error can be matched to API logs. See [docs/observability.md](docs/observability.md) and [docs/troubleshooting.md](docs/troubleshooting.md).
+
+## Security
+
+InfraOps uses permission-based API authorization, strict JWT validation, PBKDF2 password hashes, hashed refresh tokens, refresh-token rotation, safe error responses, auth endpoint rate limiting, explicit local CORS origins, and conservative API security headers. GitHub security automation includes Dependabot and CodeQL.
+
+The frontend stores tokens in `localStorage` for MVP/demo simplicity. That tradeoff is documented along with production alternatives such as secure HttpOnly cookies. Site/region scoping is represented in the domain, but full object-level scoped access enforcement is documented as a production follow-up.
+
+Read [docs/security.md](docs/security.md) before deploying outside a local demo environment.
+
 ## Testing & Quality
 
-GitHub Actions runs the same core checks on pushes to `main` and pull requests:
+GitHub Actions runs the core quality gates on pull requests and pushes to `main` or `master`:
 
-- backend restore, Release build, and backend/API tests
-- frontend `npm ci`, lint, production build, and React tests
-- MCP tooling dependency audit for production dependencies
+- **Backend CI:** `dotnet restore`, `dotnet build`, and `dotnet test` for `backend/InfraOps.sln`
+- **Frontend CI:** `npm ci`, lint, Vitest/React tests, and Vite production build from `frontend`
+- **Docker CI:** `docker compose -f compose.dev.yml config` and `docker compose -f compose.dev.yml build`
+- **E2E CI:** Docker stack startup, API/frontend readiness checks, and Playwright browser tests
+- **CodeQL:** C# and JavaScript/TypeScript static analysis
+- **Dependabot:** weekly NuGet, npm, GitHub Actions, and Docker dependency update checks
+
+These workflows require no deployment secrets and are intended as branch-protection gates for public portfolio review.
 
 Backend:
 
 ```powershell
-.\.tools\dotnet\dotnet.exe build .\backend\InfraOps.sln
-.\.tools\dotnet\dotnet.exe test .\backend\InfraOps.sln
+dotnet restore .\backend\InfraOps.sln
+dotnet build .\backend\InfraOps.sln --no-restore
+dotnet test .\backend\InfraOps.sln --no-build
 ```
 
 Docker backend validation:
 
 ```powershell
+docker compose -f .\compose.dev.yml config
+docker compose -f .\compose.dev.yml build
 docker compose -f .\compose.dev.yml run --rm api dotnet test InfraOps.sln
+docker compose -f .\compose.dev.yml run --rm api dotnet list InfraOps.sln package --vulnerable --include-transitive
 ```
 
 Frontend:
 
 ```powershell
 cd .\frontend
-npm install
+npm ci
+npm run lint
+npm test -- --run
 npm run build
-npm run test
+npm audit
 ```
+
+End-to-end browser tests:
+
+```powershell
+docker compose -f .\compose.dev.yml up -d --build
+cd .\frontend
+npx playwright install chromium
+npm run test:e2e
+```
+
+Debug E2E tests locally:
+
+```powershell
+npm run test:e2e:headed
+npm run test:e2e:ui
+```
+
+The Playwright suite uses the development/demo credentials above and expects seeded data from the Docker API startup. The GitHub Actions E2E workflow starts the Docker stack, waits for `http://localhost:8080/health` and `http://localhost:5173`, runs Chromium tests, uploads the Playwright report, and tears the stack down.
 
 Quality coverage includes:
 
@@ -212,6 +263,8 @@ Tooling:
 - [Architecture](docs/architecture.md)
 - [Domain Model](docs/domain-model.md)
 - [Execution and Validation Flow](docs/execution-flow.md)
+- [Observability](docs/observability.md)
+- [Troubleshooting](docs/troubleshooting.md)
 - [MCP Database Server](tools/mcp-db-server/README.md)
 
 ## MCP Database Inspection
@@ -247,7 +300,6 @@ Realistic next improvements:
 - richer dashboard filters and exportable operational reports
 - attachment/evidence metadata for checklist failures
 - user and role administration screens beyond seeded demo users
-- CI workflow for backend tests, frontend tests, and production build
 - production deployment profile with managed PostgreSQL and secret storage
 
 ## License

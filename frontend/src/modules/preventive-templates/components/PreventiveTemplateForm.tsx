@@ -18,6 +18,7 @@ import {
   createDefaultSection,
   normalizePreventiveTemplateCode,
 } from '@/modules/preventive-templates/utils/preventive-template-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 interface PreventiveTemplateFormProps {
   eyebrow: string
@@ -40,6 +41,7 @@ export function PreventiveTemplateForm({
   isEntityTypeLocked = false,
   onSubmit,
 }: PreventiveTemplateFormProps) {
+  const { t } = useTranslation()
   const [submitError, setSubmitError] = useState<string | null>(null)
   const {
     control,
@@ -75,7 +77,7 @@ export function PreventiveTemplateForm({
         return
       }
 
-      setSubmitError('InfraOps could not save the preventive template.')
+      setSubmitError(t('templates.form.saveFailed'))
     }
   }
 
@@ -93,20 +95,20 @@ export function PreventiveTemplateForm({
         <section className="form-section">
           <div className="form-section__heading">
             <div>
-              <h2>Template metadata</h2>
-              <p>Define the stable template reference and the entity type it belongs to.</p>
+              <h2>{t('templates.form.metadata')}</h2>
+              <p>{t('templates.form.metadataHelp')}</p>
             </div>
           </div>
 
           <div className="field-grid field-grid--three-columns">
             <div className="field">
-              <label htmlFor="preventiveTemplateEntityTypeId">Entity type</label>
+              <label htmlFor="preventiveTemplateEntityTypeId">{t('common.entityType')}</label>
               <select
                 id="preventiveTemplateEntityTypeId"
                 disabled={isEntityTypeLocked}
                 {...register('entityTypeId')}
               >
-                <option value="">Select an entity type</option>
+                <option value="">{t('templates.form.selectEntityType')}</option>
                 {entityTypeOptions.map((entityType) => (
                   <option key={entityType.id} value={entityType.id}>
                     {entityType.name}
@@ -119,13 +121,13 @@ export function PreventiveTemplateForm({
             </div>
 
             <div className="field">
-              <label htmlFor="preventiveTemplateName">Template name</label>
+              <label htmlFor="preventiveTemplateName">{t('templates.form.name')}</label>
               <input id="preventiveTemplateName" type="text" {...register('name')} />
               {errors.name ? <span className="field__error">{errors.name.message}</span> : null}
             </div>
 
             <div className="field">
-              <label htmlFor="preventiveTemplateCode">Template code</label>
+              <label htmlFor="preventiveTemplateCode">{t('templates.form.code')}</label>
               <input
                 id="preventiveTemplateCode"
                 type="text"
@@ -142,7 +144,7 @@ export function PreventiveTemplateForm({
           </div>
 
           <div className="field">
-            <label htmlFor="preventiveTemplateDescription">Description</label>
+            <label htmlFor="preventiveTemplateDescription">{t('entity.form.description')}</label>
             <textarea id="preventiveTemplateDescription" rows={4} {...register('description')} />
             {errors.description ? (
               <span className="field__error">{errors.description.message}</span>
@@ -151,8 +153,8 @@ export function PreventiveTemplateForm({
 
           {entityTypeOptions.length === 0 ? (
             <div className="empty-state">
-              <h2>No active entity types are available.</h2>
-              <p>Create or reactivate an entity type before defining preventive templates.</p>
+              <h2>{t('templates.form.noActiveEntityTypes')}</h2>
+              <p>{t('templates.form.noActiveEntityTypesHelp')}</p>
             </div>
           ) : null}
         </section>
@@ -160,15 +162,15 @@ export function PreventiveTemplateForm({
         <section className="form-section">
           <div className="form-section__heading">
             <div>
-              <h2>Template structure</h2>
-              <p>Sections and checklist items stay inside one aggregate update flow.</p>
+              <h2>{t('templates.form.structure')}</h2>
+              <p>{t('templates.form.structureHelp')}</p>
             </div>
             <button
               className="button--secondary"
               type="button"
               onClick={() => sections.append(createDefaultSection(sections.fields.length + 1))}
             >
-              Add section
+              {t('templates.form.addSection')}
             </button>
           </div>
 
@@ -196,7 +198,7 @@ export function PreventiveTemplateForm({
 
         <div className="form-actions">
           <button className="button" type="submit" disabled={isSubmitting || entityTypeOptions.length === 0}>
-            {isSubmitting ? 'Saving...' : submitLabel}
+            {isSubmitting ? t('common.saving') : submitLabel}
           </button>
         </div>
       </form>

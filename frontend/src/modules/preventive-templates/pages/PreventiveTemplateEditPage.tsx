@@ -10,8 +10,10 @@ import {
   ensureTemplateEntityTypeOption,
   mapPreventiveTemplateToFormValues,
 } from '@/modules/preventive-templates/utils/preventive-template-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 export function PreventiveTemplateEditPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { preventiveTemplateId } = useParams()
   const queryClient = useQueryClient()
@@ -48,9 +50,9 @@ export function PreventiveTemplateEditPage() {
   if (!preventiveTemplateId || !accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive template administration</p>
-        <h1>Preventive template could not be resolved.</h1>
-        <p>The edit route requires a valid preventive template id and an authenticated session.</p>
+        <p className="hero-panel__eyebrow">{t('templates.detail.administration')}</p>
+        <h1>{t('templates.detail.unresolvedTitle')}</h1>
+        <p>{t('templates.edit.unresolvedHelp')}</p>
       </section>
     )
   }
@@ -58,9 +60,9 @@ export function PreventiveTemplateEditPage() {
   if (templateQuery.isLoading || metadataQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive template administration</p>
-        <h1>Loading preventive template definition.</h1>
-        <p>InfraOps is fetching the current template structure before editing.</p>
+        <p className="hero-panel__eyebrow">{t('templates.detail.administration')}</p>
+        <h1>{t('templates.detail.loadingTitle')}</h1>
+        <p>{t('templates.edit.loadingHelp')}</p>
       </section>
     )
   }
@@ -68,8 +70,8 @@ export function PreventiveTemplateEditPage() {
   if (templateQuery.isError || !templateQuery.data || metadataQuery.isError || !metadataQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive template administration</p>
-        <h1>Preventive template could not be loaded.</h1>
+        <p className="hero-panel__eyebrow">{t('templates.detail.administration')}</p>
+        <h1>{t('templates.detail.loadFailed')}</h1>
         <p>{templateQuery.error?.message ?? metadataQuery.error?.message}</p>
       </section>
     )
@@ -84,10 +86,10 @@ export function PreventiveTemplateEditPage() {
 
   return (
     <PreventiveTemplateForm
-      eyebrow="Preventive template administration"
-      title={`Edit ${template.name}`}
-      description="Update metadata, sections, and checklist items through one aggregate edit flow."
-      submitLabel="Save changes"
+      eyebrow={t('templates.detail.administration')}
+      title={t('templates.edit.title', { name: template.name })}
+      description={t('templates.edit.description')}
+      submitLabel={t('common.save')}
       initialValues={mapPreventiveTemplateToFormValues(template)}
       entityTypeOptions={entityTypeOptions}
       isEntityTypeLocked

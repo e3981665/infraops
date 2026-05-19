@@ -117,6 +117,6 @@ describe('InventoryListPage', () => {
 
     expect(screen.getByRole('cell', { name: 'North Region' })).toBeInTheDocument()
     expect(screen.getByRole('cell', { name: 'North Hub' })).toBeInTheDocument()
-    expect(screen.getByRole('cell', { name: 'operational' })).toBeInTheDocument()
+    expect(screen.getByRole('cell', { name: 'Operational' })).toBeInTheDocument()
   })
 })

@@ -30,6 +30,7 @@ public sealed class InventoryController : ControllerBase
     private readonly ICommandHandler<UpdateInventoryItemCommand, InventoryItemDetailsDto> _updateHandler;
     private readonly ICommandHandler<ActivateInventoryItemCommand> _activateHandler;
     private readonly ICommandHandler<DeactivateInventoryItemCommand> _deactivateHandler;
+    private readonly ILogger<InventoryController> _logger;
 
     public InventoryController(
         IQueryHandler<ListInventoryItemsQuery, IReadOnlyCollection<InventoryItemSummaryDto>> listHandler,
@@ -39,7 +40,8 @@ public sealed class InventoryController : ControllerBase
         ICommandHandler<CreateInventoryItemCommand, InventoryItemDetailsDto> createHandler,
         ICommandHandler<UpdateInventoryItemCommand, InventoryItemDetailsDto> updateHandler,
         ICommandHandler<ActivateInventoryItemCommand> activateHandler,
-        ICommandHandler<DeactivateInventoryItemCommand> deactivateHandler)
+        ICommandHandler<DeactivateInventoryItemCommand> deactivateHandler,
+        ILogger<InventoryController> logger)
     {
         _listHandler = listHandler;
         _getByIdHandler = getByIdHandler;
@@ -49,6 +51,7 @@ public sealed class InventoryController : ControllerBase
         _updateHandler = updateHandler;
         _activateHandler = activateHandler;
         _deactivateHandler = deactivateHandler;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -122,6 +125,12 @@ public sealed class InventoryController : ControllerBase
                 MapAttributeValues(request.AttributeValues)),
             cancellationToken);
 
+        _logger.LogInformation(
+            "Inventory item created {InventoryItemId} for entity type {EntityTypeId} at site {SiteId}.",
+            result.Id,
+            result.EntityTypeId,
+            result.SiteId);
+
         return CreatedAtAction(nameof(GetById), new { inventoryItemId = result.Id }, MapResponse(result));
     }
 
@@ -144,6 +153,11 @@ public sealed class InventoryController : ControllerBase
                 MapAttributeValues(request.AttributeValues)),
             cancellationToken);
 
+        _logger.LogInformation(
+            "Inventory item updated {InventoryItemId} at site {SiteId}.",
+            result.Id,
+            result.SiteId);
+
         return Ok(MapResponse(result));
     }
 
@@ -154,6 +168,8 @@ public sealed class InventoryController : ControllerBase
     {
         await _activateHandler.Handle(new ActivateInventoryItemCommand(inventoryItemId), cancellationToken);
 
+        _logger.LogInformation("Inventory item activated {InventoryItemId}.", inventoryItemId);
+
         return NoContent();
     }
 
@@ -163,6 +179,8 @@ public sealed class InventoryController : ControllerBase
     public async Task<IActionResult> Deactivate(Guid inventoryItemId, CancellationToken cancellationToken)
     {
         await _deactivateHandler.Handle(new DeactivateInventoryItemCommand(inventoryItemId), cancellationToken);
+
+        _logger.LogInformation("Inventory item deactivated {InventoryItemId}.", inventoryItemId);
 
         return NoContent();
     }

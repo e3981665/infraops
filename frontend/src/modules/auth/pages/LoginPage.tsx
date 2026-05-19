@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { ApiError } from '@/shared/api/http-client'
 import { useAuthSession } from '@/modules/auth/hooks/useAuthSession'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 import {
   loginFormSchema,
   type LoginFormValues,
@@ -19,6 +20,7 @@ export function LoginPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { isAuthenticated, signIn, status } = useAuthSession()
+  const { t } = useTranslation()
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const redirectTarget =
@@ -39,9 +41,9 @@ export function LoginPage() {
   if (status === 'loading') {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Session bootstrap</p>
-        <h1>Checking saved credentials.</h1>
-        <p>The app is restoring the current InfraOps session.</p>
+        <p className="hero-panel__eyebrow">{t('login.sessionBootstrap')}</p>
+        <h1>{t('login.checkingTitle')}</h1>
+        <p>{t('login.checkingMessage')}</p>
       </section>
     )
   }
@@ -57,11 +59,11 @@ export function LoginPage() {
       await signIn(values)
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
-        setSubmitError('The email or password is invalid.')
+        setSubmitError(t('login.invalidCredentials'))
         return
       }
 
-      setSubmitError('InfraOps could not complete the sign-in request.')
+      setSubmitError(t('login.failed'))
       return
     }
 
@@ -72,23 +74,28 @@ export function LoginPage() {
 
   return (
     <section className="login-page">
+      <aside className="login-page__summary" aria-label={t('login.platformSummary')}>
+        <p className="hero-panel__eyebrow">{t('login.summaryEyebrow')}</p>
+        <h1>{t('login.summaryTitle')}</h1>
+        <ul>
+          <li>{t('login.summaryInventory')}</li>
+          <li>{t('login.summarySnapshots')}</li>
+          <li>{t('login.summaryAudit')}</li>
+        </ul>
+      </aside>
       <div className="login-panel">
-        <p className="hero-panel__eyebrow">Authentication</p>
-        <h1>Sign in to InfraOps</h1>
-        <p>
-          Use the seeded development administrator account to enter the
-          authenticated workspace. The frontend restores the current user on app
-          load and refreshes tokens when possible.
-        </p>
+        <p className="hero-panel__eyebrow">{t('login.auth')}</p>
+        <h1>{t('login.title')}</h1>
+        <p>{t('login.description')}</p>
 
         <form className="form-grid" onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="field">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('login.email')}</label>
             <input
               id="email"
               type="email"
               autoComplete="email"
-              placeholder="operator@infraops.local"
+              placeholder={t('login.emailPlaceholder')}
               {...register('email')}
             />
             {errors.email ? (
@@ -97,12 +104,12 @@ export function LoginPage() {
           </div>
 
           <div className="field">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t('login.password')}</label>
             <input
               id="password"
               type="password"
               autoComplete="current-password"
-              placeholder="At least 8 characters"
+              placeholder={t('login.passwordPlaceholder')}
               {...register('password')}
             />
             {errors.password ? (
@@ -111,14 +118,14 @@ export function LoginPage() {
           </div>
 
           <button className="button" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
+            {isSubmitting ? t('login.signingIn') : t('login.signIn')}
           </button>
         </form>
 
         {submitError ? <p className="form-error">{submitError}</p> : null}
 
         <p className="form-note">
-          Development user: <strong>admin@infraops.local</strong>
+          {t('login.devUser')} <strong>admin@infraops.local</strong>
         </p>
       </div>
     </section>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { useAuthSession } from '@/modules/auth/hooks/useAuthSession'
@@ -8,8 +8,10 @@ import { InventoryItemForm } from '@/modules/inventory/components/InventoryItemF
 import type { InventoryItemFormValues } from '@/modules/inventory/schemas/inventory-form-schema'
 import { buildInventoryDetailPath } from '@/shared/routing/route-paths'
 import { createDefaultInventoryItemFormValues } from '@/modules/inventory/utils/inventory-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 export function InventoryCreatePage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { session } = useAuthSession()
@@ -40,16 +42,20 @@ export function InventoryCreatePage() {
     },
   })
 
-  const initialValues = metadataQuery.data
-    ? createDefaultInventoryItemFormValues(metadataQuery.data)
-    : null
+  const initialValues = useMemo(
+    () =>
+      metadataQuery.data
+        ? createDefaultInventoryItemFormValues(metadataQuery.data)
+        : null,
+    [metadataQuery.data],
+  )
 
   if (!accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Authenticated access is required.</h1>
-        <p>The inventory workspace is waiting for a valid session.</p>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('common.authRequired')}</h1>
+        <p>{t('inventory.authMessage')}</p>
       </section>
     )
   }
@@ -57,9 +63,9 @@ export function InventoryCreatePage() {
   if (metadataQuery.isLoading || !initialValues) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Loading inventory metadata.</h1>
-        <p>InfraOps is preparing the dynamic registration form.</p>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('inventory.loadingMetadata')}</h1>
+        <p>{t('inventory.loadingMetadataHelp')}</p>
       </section>
     )
   }
@@ -67,19 +73,19 @@ export function InventoryCreatePage() {
   if (metadataQuery.isError || !metadataQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Inventory metadata could not be loaded.</h1>
-        <p>{metadataQuery.error?.message ?? 'The required lookup data was not found.'}</p>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('inventory.metadataLoadFailed')}</h1>
+        <p>{metadataQuery.error?.message ?? t('inventory.lookupDataMissing')}</p>
       </section>
     )
   }
 
   return (
     <InventoryItemForm
-      eyebrow="Inventory management"
-      title="Register a new inventory item"
-      description="Choose an entity type, load its dynamic fields, and store the infrastructure item through one consistent aggregate flow."
-      submitLabel="Save inventory item"
+      eyebrow={t('inventory.management')}
+      title={t('inventory.createTitle')}
+      description={t('inventory.createDescription')}
+      submitLabel={t('inventory.saveItem')}
       initialValues={initialValues}
       metadata={metadataQuery.data}
       formDefinition={formDefinitionQuery.data ?? null}

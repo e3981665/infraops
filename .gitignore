@@ -13,6 +13,8 @@ frontend/node_modules/
 frontend/dist/
 frontend/dist-ssr/
 frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
 tools/mcp-db-server/node_modules/
 
 # Environment and secrets

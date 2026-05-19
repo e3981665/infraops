@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using System.Security.Claims;
 using System.Text;
 using InfraOps.Api.Authorization;
@@ -14,6 +15,7 @@ namespace InfraOps.Api;
 public static class DependencyInjection
 {
     private const string FrontendCorsPolicy = "Frontend";
+    public const string AuthSensitiveRateLimitPolicy = "AuthSensitive";
 
     public static IServiceCollection AddPresentation(
         this IServiceCollection services,
@@ -39,6 +41,27 @@ public static class DependencyInjection
                 policy.WithOrigins(allowedOrigins)
                     .AllowAnyHeader()
                     .AllowAnyMethod();
+            });
+        });
+
+        services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.AddPolicy(AuthSensitiveRateLimitPolicy, context =>
+            {
+                var permitLimit = configuration.GetValue<int?>("RateLimiting:AuthSensitive:PermitLimit") ?? 30;
+                var windowSeconds = configuration.GetValue<int?>("RateLimiting:AuthSensitive:WindowSeconds") ?? 60;
+                var partitionKey = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey,
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        AutoReplenishment = true,
+                        PermitLimit = permitLimit,
+                        QueueLimit = 0,
+                        Window = TimeSpan.FromSeconds(windowSeconds)
+                    });
             });
         });
 

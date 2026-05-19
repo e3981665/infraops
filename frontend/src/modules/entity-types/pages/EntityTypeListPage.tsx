@@ -8,8 +8,10 @@ import {
   buildEntityTypeEditPath,
   routePaths,
 } from '@/shared/routing/route-paths'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 export function EntityTypeListPage() {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { session } = useAuthSession()
   const accessToken = session?.tokens.accessToken
@@ -43,9 +45,9 @@ export function EntityTypeListPage() {
   if (!accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Entity types</p>
-        <h1>Authenticated access is required.</h1>
-        <p>The admin workspace is waiting for a valid session.</p>
+        <p className="hero-panel__eyebrow">{t('entity.list.eyebrow')}</p>
+        <h1>{t('common.authRequired')}</h1>
+        <p>{t('templates.authMessage')}</p>
       </section>
     )
   }
@@ -53,9 +55,9 @@ export function EntityTypeListPage() {
   if (entityTypesQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Entity types</p>
-        <h1>Loading configurable definitions.</h1>
-        <p>InfraOps is fetching the current entity-type catalog.</p>
+        <p className="hero-panel__eyebrow">{t('entity.list.eyebrow')}</p>
+        <h1>{t('entity.list.loadingTitle')}</h1>
+        <p>{t('entity.list.loadingHelp')}</p>
       </section>
     )
   }
@@ -63,8 +65,8 @@ export function EntityTypeListPage() {
   if (entityTypesQuery.isError) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Entity types</p>
-        <h1>Entity definitions could not be loaded.</h1>
+        <p className="hero-panel__eyebrow">{t('entity.list.eyebrow')}</p>
+        <h1>{t('entity.list.errorTitle')}</h1>
         <p>{entityTypesQuery.error.message}</p>
       </section>
     )
@@ -76,36 +78,35 @@ export function EntityTypeListPage() {
     <section className="module-panel">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Entity type administration</p>
-          <h1>Configurable infrastructure definitions.</h1>
+          <p className="hero-panel__eyebrow">{t('entity.detail.administration')}</p>
+          <h1>{t('entity.list.title')}</h1>
         </div>
         <p>
-          Define reusable asset models and dynamic fields that Inventory will
-          later render and validate.
+          {t('entity.list.description')}
         </p>
       </div>
 
       <div className="module-panel__actions">
         <Link className="button" to={routePaths.entityTypeCreate}>
-          Create entity type
+          {t('entity.list.create')}
         </Link>
       </div>
 
       {entityTypes.length === 0 ? (
         <div className="empty-state">
-          <h2>No entity types defined yet.</h2>
-          <p>Create the first definition to prepare the inventory module.</p>
+          <h2>{t('entity.list.emptyTitle')}</h2>
+          <p>{t('entity.list.emptyMessage')}</p>
         </div>
       ) : (
         <div className="table-panel">
           <table className="data-table">
             <thead>
               <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Code</th>
-                <th scope="col">Status</th>
-                <th scope="col">Fields</th>
-                <th scope="col">Actions</th>
+                <th scope="col">{t('common.name')}</th>
+                <th scope="col">{t('common.code')}</th>
+                <th scope="col">{t('common.status')}</th>
+                <th scope="col">{t('common.fields')}</th>
+                <th scope="col">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -120,17 +121,17 @@ export function EntityTypeListPage() {
                   </td>
                   <td>
                     <span className={`status-chip${entityType.isActive ? '' : ' status-chip--inactive'}`}>
-                      {entityType.isActive ? 'Active' : 'Inactive'}
+                      {entityType.isActive ? t('common.active') : t('common.inactive')}
                     </span>
                   </td>
                   <td>{entityType.fieldCount}</td>
                   <td>
                     <div className="inline-actions">
                       <Link className="button--secondary" to={buildEntityTypeDetailPath(entityType.id)}>
-                        View
+                        {t('common.view')}
                       </Link>
                       <Link className="button--secondary" to={buildEntityTypeEditPath(entityType.id)}>
-                        Edit
+                        {t('common.edit')}
                       </Link>
                       <button
                         className="button--secondary"
@@ -144,7 +145,7 @@ export function EntityTypeListPage() {
                           void activateMutation.mutateAsync(entityType.id)
                         }}
                       >
-                        {entityType.isActive ? 'Deactivate' : 'Activate'}
+                        {entityType.isActive ? t('common.deactivate') : t('common.activate')}
                       </button>
                     </div>
                   </td>

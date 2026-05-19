@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { InventoryItemForm } from '@/modules/inventory/components/InventoryItemForm'
 import { createDefaultInventoryItemFormValues } from '@/modules/inventory/utils/inventory-form-utils'
+import { renderWithProviders } from '@/app/test/render-with-providers'
 import type {
   InventoryFormDefinition,
   InventoryFormMetadata,
@@ -84,7 +85,7 @@ const formDefinition: InventoryFormDefinition = {
 
 describe('InventoryItemForm', () => {
   it('should render dynamic fields from the selected entity type definition', () => {
-    render(
+    renderWithProviders(
       <InventoryItemForm
         eyebrow="Inventory management"
         title="Register inventory item"
@@ -109,7 +110,7 @@ describe('InventoryItemForm', () => {
   })
 
   it('should render select field options correctly', () => {
-    render(
+    renderWithProviders(
       <InventoryItemForm
         eyebrow="Inventory management"
         title="Register inventory item"
@@ -135,7 +136,7 @@ describe('InventoryItemForm', () => {
   it('should validate required fields before submission', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithProviders(
       <InventoryItemForm
         eyebrow="Inventory management"
         title="Register inventory item"

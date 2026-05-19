@@ -1,6 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { renderWithProviders } from '@/app/test/render-with-providers'
 import { PreventiveValidationActionPanel } from '@/modules/preventive-validations/components/PreventiveValidationActionPanel'
 
 describe('PreventiveValidationActionPanel', () => {
@@ -8,7 +9,7 @@ describe('PreventiveValidationActionPanel', () => {
     const user = userEvent.setup()
     const onReject = vi.fn().mockResolvedValue(undefined)
 
-    render(
+    renderWithProviders(
       <PreventiveValidationActionPanel
         status="submitted"
         onApprove={vi.fn().mockResolvedValue(undefined)}
@@ -27,7 +28,7 @@ describe('PreventiveValidationActionPanel', () => {
     const user = userEvent.setup()
     const onRequestRework = vi.fn().mockResolvedValue(undefined)
 
-    render(
+    renderWithProviders(
       <PreventiveValidationActionPanel
         status="submitted"
         onApprove={vi.fn().mockResolvedValue(undefined)}
@@ -46,7 +47,7 @@ describe('PreventiveValidationActionPanel', () => {
     const user = userEvent.setup()
     const onApprove = vi.fn().mockResolvedValue(undefined)
 
-    render(
+    renderWithProviders(
       <PreventiveValidationActionPanel
         status="submitted"
         onApprove={onApprove}

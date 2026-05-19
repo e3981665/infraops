@@ -2,6 +2,7 @@ import { useFieldArray, useWatch, type Control, type FieldErrors, type UseFormRe
 import type { PreventiveTemplateFormValues } from '@/modules/preventive-templates/schemas/preventive-template-form-schema'
 import { PreventiveChecklistItemEditor } from '@/modules/preventive-templates/components/PreventiveChecklistItemEditor'
 import { createDefaultChecklistItem } from '@/modules/preventive-templates/utils/preventive-template-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 interface PreventiveTemplateSectionEditorProps {
   control: Control<PreventiveTemplateFormValues>
@@ -22,6 +23,7 @@ export function PreventiveTemplateSectionEditor({
   error,
   isPersisted,
 }: PreventiveTemplateSectionEditorProps) {
+  const { t } = useTranslation()
   const isActive = useWatch({
     control,
     name: `sections.${sectionIndex}.isActive`,
@@ -35,8 +37,8 @@ export function PreventiveTemplateSectionEditor({
     <article className={`entity-field-editor${isActive ? '' : ' entity-field-editor--inactive'}`}>
       <div className="entity-field-editor__header">
         <div>
-          <h3>Section {sectionIndex + 1}</h3>
-          <p>{isActive ? 'Active section definition.' : 'Inactive section kept for history.'}</p>
+          <h3>{t('templates.section.title', { index: sectionIndex + 1 })}</h3>
+          <p>{isActive ? t('templates.section.active') : t('templates.section.inactive')}</p>
         </div>
         <div className="button-row">
           {isPersisted ? (
@@ -49,11 +51,11 @@ export function PreventiveTemplateSectionEditor({
                 })
               }}
             >
-              {isActive ? 'Deactivate section' : 'Reactivate section'}
+              {isActive ? t('templates.section.deactivate') : t('templates.section.reactivate')}
             </button>
           ) : (
             <button className="button--secondary" type="button" onClick={onRemoveSection}>
-              Remove section
+              {t('templates.section.remove')}
             </button>
           )}
         </div>
@@ -61,7 +63,7 @@ export function PreventiveTemplateSectionEditor({
 
       <div className="field-grid field-grid--three-columns">
         <div className="field">
-          <label htmlFor={`sections.${sectionIndex}.title`}>Section title</label>
+          <label htmlFor={`sections.${sectionIndex}.title`}>{t('templates.section.titleLabel')}</label>
           <input
             id={`sections.${sectionIndex}.title`}
             type="text"
@@ -71,7 +73,7 @@ export function PreventiveTemplateSectionEditor({
         </div>
 
         <div className="field">
-          <label htmlFor={`sections.${sectionIndex}.displayOrder`}>Display order</label>
+          <label htmlFor={`sections.${sectionIndex}.displayOrder`}>{t('entity.form.displayOrder')}</label>
           <input
             id={`sections.${sectionIndex}.displayOrder`}
             type="number"
@@ -89,22 +91,22 @@ export function PreventiveTemplateSectionEditor({
             type="checkbox"
             {...register(`sections.${sectionIndex}.isActive`)}
           />
-          <span>Section is active</span>
+          <span>{t('templates.section.isActive')}</span>
         </label>
       </div>
 
       <section className="form-section">
         <div className="form-section__heading">
           <div>
-            <h4>Checklist items</h4>
-            <p>These items will later render into preventive execution forms.</p>
+            <h4>{t('templates.checklistItems')}</h4>
+            <p>{t('templates.section.itemsHelp')}</p>
           </div>
           <button
             className="button--secondary"
             type="button"
             onClick={() => checklistItems.append(createDefaultChecklistItem(checklistItems.fields.length + 1))}
           >
-            Add item
+            {t('templates.section.addItem')}
           </button>
         </div>
 

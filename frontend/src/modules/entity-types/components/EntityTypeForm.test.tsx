@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { EntityTypeForm } from '@/modules/entity-types/components/EntityTypeForm'
@@ -6,6 +6,7 @@ import {
   createDefaultEntityTypeFormValues,
   mapEntityTypeToFormValues,
 } from '@/modules/entity-types/utils/entity-type-form-utils'
+import { renderWithProviders } from '@/app/test/render-with-providers'
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -15,7 +16,7 @@ describe('EntityTypeForm', () => {
   it('should validate required fields before submission', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithProviders(
       <EntityTypeForm
         eyebrow="Entity type administration"
         title="Create entity type"
@@ -36,7 +37,7 @@ describe('EntityTypeForm', () => {
   it('should show the options editor when the field type is select', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithProviders(
       <EntityTypeForm
         eyebrow="Entity type administration"
         title="Create entity type"
@@ -56,7 +57,7 @@ describe('EntityTypeForm', () => {
   it('should hide the options editor when the field type is changed away from select', async () => {
     const user = userEvent.setup()
 
-    render(
+    renderWithProviders(
       <EntityTypeForm
         eyebrow="Entity type administration"
         title="Edit entity type"

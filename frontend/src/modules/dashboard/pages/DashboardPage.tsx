@@ -5,8 +5,10 @@ import { dashboardClient } from '@/modules/dashboard/api/dashboard-client'
 import { dashboardQueryKeys } from '@/modules/dashboard/api/dashboard-query-keys'
 import { MetricCard } from '@/modules/dashboard/components/MetricCard'
 import { SimpleBarChart } from '@/modules/dashboard/components/SimpleBarChart'
-import type { DashboardFilters } from '@/modules/dashboard/types/dashboard'
+import type { DashboardFilters, DashboardMetricPoint } from '@/modules/dashboard/types/dashboard'
 import { useAuthSession } from '@/modules/auth/hooks/useAuthSession'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+import { localizeDemoText } from '@/shared/i18n/localized-domain-labels'
 import { routePaths } from '@/shared/routing/route-paths'
 
 const defaultFilters: DashboardFilters = {
@@ -19,6 +21,7 @@ const defaultFilters: DashboardFilters = {
 
 export function DashboardPage() {
   const { session } = useAuthSession()
+  const { locale, t } = useTranslation()
   const accessToken = session?.tokens.accessToken
   const [filters, setFilters] = useState(defaultFilters)
 
@@ -37,8 +40,8 @@ export function DashboardPage() {
   if (!accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Operational dashboard</p>
-        <h1>Authenticated access is required.</h1>
+        <p className="hero-panel__eyebrow">{t('dashboard.eyebrow')}</p>
+        <h1>{t('common.authRequired')}</h1>
       </section>
     )
   }
@@ -46,9 +49,9 @@ export function DashboardPage() {
   if (summaryQuery.isLoading || chartsQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Operational dashboard</p>
-        <h1>Loading operational metrics.</h1>
-        <p>InfraOps is aggregating inventory, execution, and validation activity.</p>
+        <p className="hero-panel__eyebrow">{t('dashboard.eyebrow')}</p>
+        <h1>{t('dashboard.loadingTitle')}</h1>
+        <p>{t('dashboard.loadingMessage')}</p>
       </section>
     )
   }
@@ -56,8 +59,8 @@ export function DashboardPage() {
   if (summaryQuery.isError || chartsQuery.isError || !summaryQuery.data || !chartsQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Operational dashboard</p>
-        <h1>Dashboard metrics could not be loaded.</h1>
+        <p className="hero-panel__eyebrow">{t('dashboard.eyebrow')}</p>
+        <h1>{t('dashboard.errorTitle')}</h1>
         <p>{summaryQuery.error?.message ?? chartsQuery.error?.message}</p>
       </section>
     )
@@ -65,21 +68,26 @@ export function DashboardPage() {
 
   const summary = summaryQuery.data
   const charts = chartsQuery.data
+  const localizePoints = (points: DashboardMetricPoint[]) =>
+    points.map((point) => ({
+      ...point,
+      label: localizeDemoText(point.label, locale),
+    }))
 
   return (
     <section className="module-panel dashboard-workspace">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Operational dashboard</p>
-          <h1>Infrastructure preventive maintenance overview.</h1>
+          <p className="hero-panel__eyebrow">{t('dashboard.eyebrow')}</p>
+          <h1>{t('dashboard.title')}</h1>
         </div>
-        <p>Live operational visibility across inventory, checklist execution, and validation.</p>
+        <p>{t('dashboard.description')}</p>
       </div>
 
       <section className="form-section">
         <div className="field-grid field-grid--three-columns">
           <div className="field">
-            <label htmlFor="dashboardFrom">From</label>
+            <label htmlFor="dashboardFrom">{t('common.from')}</label>
             <input
               id="dashboardFrom"
               type="datetime-local"
@@ -88,7 +96,7 @@ export function DashboardPage() {
             />
           </div>
           <div className="field">
-            <label htmlFor="dashboardTo">To</label>
+            <label htmlFor="dashboardTo">{t('common.to')}</label>
             <input
               id="dashboardTo"
               type="datetime-local"
@@ -97,7 +105,7 @@ export function DashboardPage() {
             />
           </div>
           <div className="field">
-            <label htmlFor="dashboardEntityType">Entity type id</label>
+            <label htmlFor="dashboardEntityType">{t('dashboard.entityTypeFilter')}</label>
             <input
               id="dashboardEntityType"
               type="text"
@@ -109,56 +117,56 @@ export function DashboardPage() {
       </section>
 
       <div className="metric-grid">
-        <MetricCard label="Total inventory" value={summary.totalInventoryItems} />
-        <MetricCard label="Active inventory" value={summary.activeInventoryItems} />
+        <MetricCard label={t('dashboard.totalInventory')} value={summary.totalInventoryItems} />
+        <MetricCard label={t('dashboard.activeInventory')} value={summary.activeInventoryItems} />
         <MetricCard
-          label="Executions this month"
+          label={t('dashboard.executionsThisMonth')}
           value={summary.preventiveExecutionsThisMonth}
         />
         <MetricCard
-          label="Pending validation"
+          label={t('dashboard.pendingValidation')}
           value={summary.pendingValidationExecutions}
-          detail="Submitted executions"
+          detail={t('dashboard.submittedExecutions')}
         />
-        <MetricCard label="Approved" value={summary.approvedPreventiveExecutions} />
-        <MetricCard label="Rejected" value={summary.rejectedPreventiveExecutions} />
-        <MetricCard label="Rework requested" value={summary.reworkRequestedPreventiveExecutions} />
-        <MetricCard label="Active entity types" value={summary.activeEntityTypes} />
-        <MetricCard label="Active templates" value={summary.activePreventiveTemplates} />
+        <MetricCard label={t('dashboard.approved')} value={summary.approvedPreventiveExecutions} />
+        <MetricCard label={t('dashboard.rejected')} value={summary.rejectedPreventiveExecutions} />
+        <MetricCard label={t('dashboard.reworkRequested')} value={summary.reworkRequestedPreventiveExecutions} />
+        <MetricCard label={t('dashboard.activeEntityTypes')} value={summary.activeEntityTypes} />
+        <MetricCard label={t('dashboard.activeTemplates')} value={summary.activePreventiveTemplates} />
       </div>
 
       <div className="quick-actions">
         <Link className="button" to={routePaths.preventiveValidations}>
-          Open validation queue
+          {t('dashboard.openValidationQueue')}
         </Link>
         <Link className="button--secondary" to={routePaths.preventiveExecutions}>
-          Review executions
+          {t('dashboard.reviewExecutions')}
         </Link>
         <Link className="button--secondary" to={routePaths.inventory}>
-          View inventory
+          {t('dashboard.viewInventory')}
         </Link>
       </div>
 
       <div className="chart-grid">
         <SimpleBarChart
-          emptyMessage="No execution activity exists for the current filters."
+          emptyMessage={t('dashboard.noExecutionActivity')}
           points={charts.executionsByMonth}
-          title="Preventive executions by month"
+          title={t('dashboard.executionsByMonth')}
         />
         <SimpleBarChart
-          emptyMessage="No validation outcomes exist for the current filters."
-          points={charts.validationResultsByStatus}
-          title="Validation results by status"
+          emptyMessage={t('dashboard.noValidationOutcomes')}
+          points={localizePoints(charts.validationResultsByStatus)}
+          title={t('dashboard.validationResultsByStatus')}
         />
         <SimpleBarChart
-          emptyMessage="No inventory exists for the current filters."
-          points={charts.inventoryByEntityType}
-          title="Inventory by entity type"
+          emptyMessage={t('dashboard.noInventory')}
+          points={localizePoints(charts.inventoryByEntityType)}
+          title={t('dashboard.inventoryByEntityType')}
         />
         <SimpleBarChart
-          emptyMessage="No executions exist for the current filters."
-          points={charts.executionsByEntityType}
-          title="Executions by entity type"
+          emptyMessage={t('dashboard.noExecutions')}
+          points={localizePoints(charts.executionsByEntityType)}
+          title={t('dashboard.executionsByEntityType')}
         />
       </div>
     </section>

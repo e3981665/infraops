@@ -4,6 +4,7 @@ import {
   createDefaultChecklistOption,
   normalizeChecklistOptionValue,
 } from '@/modules/preventive-templates/utils/preventive-template-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 interface PreventiveSelectOptionsEditorProps {
   control: Control<PreventiveTemplateFormValues>
@@ -24,6 +25,7 @@ export function PreventiveSelectOptionsEditor({
   itemIndex,
   error,
 }: PreventiveSelectOptionsEditorProps) {
+  const { t } = useTranslation()
   const options = useFieldArray({
     control,
     name: `sections.${sectionIndex}.checklistItems.${itemIndex}.options`,
@@ -33,15 +35,15 @@ export function PreventiveSelectOptionsEditor({
     <section className="select-options-panel">
       <div className="form-section__heading">
         <div>
-          <h4>Select options</h4>
-          <p>Options are stored as stable values plus display labels for runtime rendering.</p>
+          <h4>{t('templates.options.title')}</h4>
+          <p>{t('templates.options.help')}</p>
         </div>
         <button
           className="button--secondary"
           type="button"
           onClick={() => options.append(createDefaultChecklistOption(options.fields.length + 1))}
         >
-          Add option
+          {t('templates.options.add')}
         </button>
       </div>
 
@@ -50,7 +52,7 @@ export function PreventiveSelectOptionsEditor({
           <div className="entity-field-option-row" key={option.id}>
             <div className="field">
               <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.options.${optionIndex}.value`}>
-                Option value
+                {t('templates.options.value')}
               </label>
               <input
                 id={`sections.${sectionIndex}.checklistItems.${itemIndex}.options.${optionIndex}.value`}
@@ -72,7 +74,7 @@ export function PreventiveSelectOptionsEditor({
 
             <div className="field">
               <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.options.${optionIndex}.label`}>
-                Option label
+                {t('templates.options.label')}
               </label>
               <input
                 id={`sections.${sectionIndex}.checklistItems.${itemIndex}.options.${optionIndex}.label`}
@@ -86,7 +88,7 @@ export function PreventiveSelectOptionsEditor({
 
             <div className="field">
               <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.options.${optionIndex}.displayOrder`}>
-                Display order
+                {t('entity.form.displayOrder')}
               </label>
               <input
                 id={`sections.${sectionIndex}.checklistItems.${itemIndex}.options.${optionIndex}.displayOrder`}
@@ -106,7 +108,7 @@ export function PreventiveSelectOptionsEditor({
               type="button"
               onClick={() => options.remove(optionIndex)}
             >
-              Remove option
+              {t('templates.options.remove')}
             </button>
           </div>
         ))}

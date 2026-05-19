@@ -1,0 +1,26 @@
+name: Docker CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    name: Validate compose file and build services
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose configuration
+        run: docker compose -f compose.dev.yml config
+
+      - name: Build Docker services
+        run: docker compose -f compose.dev.yml build

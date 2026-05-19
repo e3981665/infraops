@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthSession } from '@/modules/auth/hooks/useAuthSession'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 import { routePaths } from '@/shared/routing/route-paths'
 
 interface ProtectedRouteProps extends PropsWithChildren {
@@ -13,16 +14,14 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const location = useLocation()
   const { hasPermission, isAuthenticated, status } = useAuthSession()
+  const { t } = useTranslation()
 
   if (status === 'loading') {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Session bootstrap</p>
-        <h1>Restoring authenticated access.</h1>
-        <p>
-          InfraOps is validating the saved session and loading the protected
-          workspace.
-        </p>
+        <p className="hero-panel__eyebrow">{t('auth.sessionBootstrap')}</p>
+        <h1>{t('auth.restoringAccess')}</h1>
+        <p>{t('auth.restoringAccessMessage')}</p>
       </section>
     )
   }
@@ -40,10 +39,10 @@ export function ProtectedRoute({
   if (requiredPermission && !hasPermission(requiredPermission)) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Access denied</p>
-        <h1>Permission required.</h1>
+        <p className="hero-panel__eyebrow">{t('auth.accessDenied')}</p>
+        <h1>{t('auth.permissionRequired')}</h1>
         <p>
-          Your current access does not include <strong>{requiredPermission}</strong>.
+          {t('auth.missingPermission', { permission: requiredPermission })}
         </p>
       </section>
     )

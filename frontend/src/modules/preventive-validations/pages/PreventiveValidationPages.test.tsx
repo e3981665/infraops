@@ -1,5 +1,6 @@
 import { screen, waitFor } from '@testing-library/react'
-import { Route, Routes } from 'react-router-dom'
+import userEvent from '@testing-library/user-event'
+import { Route, Routes, useSearchParams } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderWithProviders } from '@/app/test/render-with-providers'
 import { permissionCodes } from '@/modules/auth/authorization/permission-codes'
@@ -92,6 +93,26 @@ describe('PreventiveValidationPages', () => {
     expect(screen.getByRole('link', { name: /review/i })).toBeInTheDocument()
   })
 
+  it('should read the validation status filter from the queue URL', async () => {
+    const fetchSpy = arrangeAuthenticatedFetch([{ ...executionSummary, status: 'approved' }])
+
+    renderWithProviders(
+      <Routes>
+        <Route path={routePaths.preventiveValidations} element={<PreventiveValidationQueuePage />} />
+      </Routes>,
+      { route: `${routePaths.preventiveValidations}?status=approved` },
+    )
+
+    expect(await screen.findByText('UPS-01')).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        expect.stringContaining('/api/preventive-validations?status=approved'),
+        expect.any(Object),
+      )
+    })
+  })
+
   it('should render execution snapshot and answers on validation detail', async () => {
     arrangeAuthenticatedFetch(executionDetail)
 
@@ -109,6 +130,49 @@ describe('PreventiveValidationPages', () => {
     expect(screen.getByText('Visual Inspection')).toBeInTheDocument()
     expect(screen.getByLabelText(/Equipment clean/i)).toBeInTheDocument()
     expect(screen.getByText('No validation actions have been recorded.')).toBeInTheDocument()
+  })
+
+  it('should return to the approved queue after approval succeeds', async () => {
+    const user = userEvent.setup()
+    authTokenStorage.write(createTokens())
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const url = input.toString()
+      const method = init?.method ?? 'GET'
+
+      if (url.includes('/api/auth/me')) {
+        return jsonResponse({
+          id: 'validator-1',
+          fullName: 'InfraOps Validator',
+          email: 'validator@infraops.local',
+          roles: ['Validator'],
+          permissions: [permissionCodes.preventiveValidate],
+        })
+      }
+
+      if (url.includes('/api/preventive-validations/execution-1/approve') && method === 'POST') {
+        return jsonResponse({ ...executionDetail, status: 'approved' })
+      }
+
+      return jsonResponse(executionDetail)
+    })
+
+    renderWithProviders(
+      <Routes>
+        <Route
+          path={routePaths.preventiveValidationDetail}
+          element={<PreventiveValidationDetailPage />}
+        />
+        <Route path={routePaths.preventiveValidations} element={<ValidationQueueLocation />} />
+      </Routes>,
+      { route: '/app/preventive-validations/execution-1' },
+    )
+
+    expect(await screen.findByText('UPS-01')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /approve/i }))
+
+    expect(await screen.findByText('Queue status: approved')).toBeInTheDocument()
   })
 
   it('should block users who do not have validation permission', async () => {
@@ -149,7 +213,7 @@ describe('PreventiveValidationPages', () => {
 function arrangeAuthenticatedFetch(apiPayload: unknown) {
   authTokenStorage.write(createTokens())
 
-  vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+  return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
     const url = input.toString()
 
     if (url.includes('/api/auth/me')) {
@@ -164,6 +228,12 @@ function arrangeAuthenticatedFetch(apiPayload: unknown) {
 
     return jsonResponse(apiPayload)
   })
+}
+
+function ValidationQueueLocation() {
+  const [searchParams] = useSearchParams()
+
+  return <div>Queue status: {searchParams.get('status')}</div>
 }
 
 function createTokens() {

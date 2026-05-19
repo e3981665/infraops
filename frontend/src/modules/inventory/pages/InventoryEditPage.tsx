@@ -7,8 +7,10 @@ import { InventoryItemForm } from '@/modules/inventory/components/InventoryItemF
 import type { InventoryItemFormValues } from '@/modules/inventory/schemas/inventory-form-schema'
 import { buildInventoryDetailPath } from '@/shared/routing/route-paths'
 import { mapInventoryItemToFormValues } from '@/modules/inventory/utils/inventory-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 export function InventoryEditPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { inventoryItemId } = useParams()
   const queryClient = useQueryClient()
@@ -54,9 +56,9 @@ export function InventoryEditPage() {
   if (!inventoryItemId || !accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Inventory item could not be resolved.</h1>
-        <p>The edit route requires a valid item id and an authenticated session.</p>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('inventory.unresolvedTitle')}</h1>
+        <p>{t('inventory.editUnresolvedHelp')}</p>
       </section>
     )
   }
@@ -64,9 +66,9 @@ export function InventoryEditPage() {
   if (inventoryItemQuery.isLoading || metadataQuery.isLoading || !initialValues) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Loading inventory item.</h1>
-        <p>InfraOps is fetching the current item and dynamic definition before editing.</p>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('inventory.loadingItem')}</h1>
+        <p>{t('inventory.editLoadingHelp')}</p>
       </section>
     )
   }
@@ -74,8 +76,8 @@ export function InventoryEditPage() {
   if (inventoryItemQuery.isError || metadataQuery.isError || !inventoryItemQuery.data || !metadataQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Inventory item could not be loaded.</h1>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('inventory.itemLoadFailed')}</h1>
         <p>{inventoryItemQuery.error?.message ?? metadataQuery.error?.message}</p>
       </section>
     )
@@ -83,10 +85,10 @@ export function InventoryEditPage() {
 
   return (
     <InventoryItemForm
-      eyebrow="Inventory management"
-      title={`Edit ${inventoryItemQuery.data.displayName}`}
-      description="Update operational metadata and dynamic attributes while preserving the original entity type association."
-      submitLabel="Save changes"
+      eyebrow={t('inventory.management')}
+      title={t('inventory.editTitle', { name: inventoryItemQuery.data.displayName })}
+      description={t('inventory.editDescription')}
+      submitLabel={t('common.save')}
       initialValues={initialValues}
       metadata={metadataQuery.data}
       formDefinition={formDefinitionQuery.data ?? null}

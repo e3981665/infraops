@@ -26,6 +26,7 @@ public sealed class EntityTypesController : ControllerBase
     private readonly ICommandHandler<UpdateEntityTypeCommand, EntityTypeDetailsDto> _updateHandler;
     private readonly ICommandHandler<ActivateEntityTypeCommand> _activateHandler;
     private readonly ICommandHandler<DeactivateEntityTypeCommand> _deactivateHandler;
+    private readonly ILogger<EntityTypesController> _logger;
 
     public EntityTypesController(
         IQueryHandler<ListEntityTypesQuery, IReadOnlyCollection<EntityTypeSummaryDto>> listHandler,
@@ -33,7 +34,8 @@ public sealed class EntityTypesController : ControllerBase
         ICommandHandler<CreateEntityTypeCommand, EntityTypeDetailsDto> createHandler,
         ICommandHandler<UpdateEntityTypeCommand, EntityTypeDetailsDto> updateHandler,
         ICommandHandler<ActivateEntityTypeCommand> activateHandler,
-        ICommandHandler<DeactivateEntityTypeCommand> deactivateHandler)
+        ICommandHandler<DeactivateEntityTypeCommand> deactivateHandler,
+        ILogger<EntityTypesController> logger)
     {
         _listHandler = listHandler;
         _getByIdHandler = getByIdHandler;
@@ -41,6 +43,7 @@ public sealed class EntityTypesController : ControllerBase
         _updateHandler = updateHandler;
         _activateHandler = activateHandler;
         _deactivateHandler = deactivateHandler;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -75,6 +78,11 @@ public sealed class EntityTypesController : ControllerBase
                 MapFieldDefinitions(request.FieldDefinitions)),
             cancellationToken);
 
+        _logger.LogInformation(
+            "Entity type created {EntityTypeId} with code {EntityTypeCode}.",
+            result.Id,
+            result.Code);
+
         return CreatedAtAction(nameof(GetById), new { entityTypeId = result.Id }, MapResponse(result));
     }
 
@@ -94,6 +102,11 @@ public sealed class EntityTypesController : ControllerBase
                 MapFieldDefinitions(request.FieldDefinitions)),
             cancellationToken);
 
+        _logger.LogInformation(
+            "Entity type updated {EntityTypeId} with code {EntityTypeCode}.",
+            result.Id,
+            result.Code);
+
         return Ok(MapResponse(result));
     }
 
@@ -103,6 +116,8 @@ public sealed class EntityTypesController : ControllerBase
     {
         await _activateHandler.Handle(new ActivateEntityTypeCommand(entityTypeId), cancellationToken);
 
+        _logger.LogInformation("Entity type activated {EntityTypeId}.", entityTypeId);
+
         return NoContent();
     }
 
@@ -111,6 +126,8 @@ public sealed class EntityTypesController : ControllerBase
     public async Task<IActionResult> Deactivate(Guid entityTypeId, CancellationToken cancellationToken)
     {
         await _deactivateHandler.Handle(new DeactivateEntityTypeCommand(entityTypeId), cancellationToken);
+
+        _logger.LogInformation("Entity type deactivated {EntityTypeId}.", entityTypeId);
 
         return NoContent();
     }

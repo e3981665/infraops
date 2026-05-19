@@ -39,38 +39,61 @@ public sealed class ExceptionHandlingMiddleware
             await WriteErrorResponseAsync(
                 context,
                 HttpStatusCode.BadRequest,
-                new ErrorResponse("validation_error", "One or more validation errors occurred.", validationErrors));
+                CreateErrorResponse(
+                    context,
+                    "validation_error",
+                    "One or more validation errors occurred.",
+                    validationErrors));
         }
         catch (ApplicationUnauthorizedException exception)
         {
             await WriteErrorResponseAsync(
                 context,
                 HttpStatusCode.Unauthorized,
-                new ErrorResponse("unauthorized", exception.Message));
+                CreateErrorResponse(context, "unauthorized", exception.Message));
         }
         catch (ApplicationNotFoundException exception)
         {
             await WriteErrorResponseAsync(
                 context,
                 HttpStatusCode.NotFound,
-                new ErrorResponse("not_found", exception.Message));
+                CreateErrorResponse(context, "not_found", exception.Message));
         }
         catch (DomainRuleException exception)
         {
             await WriteErrorResponseAsync(
                 context,
                 HttpStatusCode.BadRequest,
-                new ErrorResponse("domain_rule_violation", exception.Message));
+                CreateErrorResponse(context, "domain_rule_violation", exception.Message));
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Unhandled exception while processing {Path}", context.Request.Path);
+            var correlationId = CorrelationIdMiddleware.GetCorrelationId(context);
+
+            _logger.LogError(
+                exception,
+                "Unhandled exception while processing {Path} with correlation {CorrelationId}.",
+                context.Request.Path.Value,
+                correlationId);
 
             await WriteErrorResponseAsync(
                 context,
                 HttpStatusCode.InternalServerError,
-                new ErrorResponse("server_error", "An unexpected error occurred."));
+                CreateErrorResponse(context, "server_error", "An unexpected error occurred."));
         }
+    }
+
+    private static ErrorResponse CreateErrorResponse(
+        HttpContext context,
+        string code,
+        string message,
+        IReadOnlyDictionary<string, string[]>? errors = null)
+    {
+        return new ErrorResponse(
+            code,
+            message,
+            errors,
+            CorrelationIdMiddleware.GetCorrelationId(context));
     }
 
     private static async Task WriteErrorResponseAsync(

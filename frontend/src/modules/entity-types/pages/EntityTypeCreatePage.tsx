@@ -7,8 +7,10 @@ import { entityTypesClient } from '@/modules/entity-types/api/entity-types-clien
 import type { EntityTypeFormValues } from '@/modules/entity-types/schemas/entity-type-form-schema'
 import { buildEntityTypeDetailPath } from '@/shared/routing/route-paths'
 import { createDefaultEntityTypeFormValues } from '@/modules/entity-types/utils/entity-type-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 export function EntityTypeCreatePage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { session } = useAuthSession()
@@ -26,19 +28,19 @@ export function EntityTypeCreatePage() {
   if (!accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Entity type administration</p>
-        <h1>Authenticated access is required.</h1>
-        <p>The admin workspace is waiting for a valid session.</p>
+        <p className="hero-panel__eyebrow">{t('entity.detail.administration')}</p>
+        <h1>{t('common.authRequired')}</h1>
+        <p>{t('templates.authMessage')}</p>
       </section>
     )
   }
 
   return (
     <EntityTypeForm
-      eyebrow="Entity type administration"
-      title="Create a new entity type"
-      description="Define the metadata and dynamic fields that later inventory items will consume."
-      submitLabel="Save entity type"
+      eyebrow={t('entity.detail.administration')}
+      title={t('entity.create.title')}
+      description={t('entity.create.description')}
+      submitLabel={t('entity.save')}
       initialValues={createDefaultEntityTypeFormValues()}
       onSubmit={async (values) => {
         await createEntityTypeMutation.mutateAsync(values)

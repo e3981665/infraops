@@ -16,19 +16,22 @@ export interface ApiErrorResponse {
   code: string
   message: string
   errors?: Record<string, string[]>
+  correlationId?: string
 }
 
 export class ApiError extends Error {
   readonly status: number
   readonly code: string
   readonly errors?: Record<string, string[]>
+  readonly correlationId?: string
 
   constructor(status: number, response: ApiErrorResponse) {
-    super(response.message)
+    super(formatApiErrorMessage(response))
     this.name = 'ApiError'
     this.status = status
     this.code = response.code
     this.errors = response.errors
+    this.correlationId = response.correlationId
   }
 }
 
@@ -69,13 +72,18 @@ export async function request<TResponse>(
 
   if (!response.ok) {
     if (hasJsonBody) {
-      throw new ApiError(response.status, (await response.json()) as ApiErrorResponse)
+      const error = new ApiError(response.status, (await response.json()) as ApiErrorResponse)
+      logApiError(path, error)
+      throw error
     }
 
-    throw new ApiError(response.status, {
+    const error = new ApiError(response.status, {
       code: 'http_error',
       message: `Request failed with status ${response.status}.`,
+      correlationId: response.headers.get('x-correlation-id') ?? undefined,
     })
+    logApiError(path, error)
+    throw error
   }
 
   if (!hasJsonBody) {
@@ -83,4 +91,25 @@ export async function request<TResponse>(
   }
 
   return (await response.json()) as TResponse
+}
+
+function formatApiErrorMessage(response: ApiErrorResponse) {
+  if (!response.correlationId) {
+    return response.message
+  }
+
+  return `${response.message} Reference: ${response.correlationId}`
+}
+
+function logApiError(path: string, error: ApiError) {
+  if (!import.meta.env.DEV) {
+    return
+  }
+
+  console.warn('InfraOps API request failed.', {
+    path,
+    status: error.status,
+    code: error.code,
+    correlationId: error.correlationId,
+  })
 }

@@ -3,6 +3,7 @@ import { useWatch, type Control, type FieldErrors, type UseFormRegister, type Us
 import type { PreventiveTemplateFormValues } from '@/modules/preventive-templates/schemas/preventive-template-form-schema'
 import { PreventiveSelectOptionsEditor } from '@/modules/preventive-templates/components/PreventiveSelectOptionsEditor'
 import { normalizeChecklistItemKey } from '@/modules/preventive-templates/utils/preventive-template-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 interface PreventiveChecklistItemEditorProps {
   control: Control<PreventiveTemplateFormValues>
@@ -27,6 +28,7 @@ export function PreventiveChecklistItemEditor({
   error,
   isPersisted,
 }: PreventiveChecklistItemEditorProps) {
+  const { t } = useTranslation()
   const itemType = useWatch({
     control,
     name: `sections.${sectionIndex}.checklistItems.${itemIndex}.itemType`,
@@ -60,8 +62,8 @@ export function PreventiveChecklistItemEditor({
     <article className={`entity-field-editor${isActive ? '' : ' entity-field-editor--inactive'}`}>
       <div className="entity-field-editor__header">
         <div>
-          <h4>Checklist item {itemIndex + 1}</h4>
-          <p>{isActive ? 'Active runtime definition.' : 'Inactive definition kept for history.'}</p>
+          <h4>{t('templates.item.title', { index: itemIndex + 1 })}</h4>
+          <p>{isActive ? t('templates.item.active') : t('templates.item.inactive')}</p>
         </div>
         <div className="button-row">
           {isPersisted ? (
@@ -74,11 +76,11 @@ export function PreventiveChecklistItemEditor({
                 })
               }}
             >
-              {isActive ? 'Deactivate item' : 'Reactivate item'}
+              {isActive ? t('templates.item.deactivate') : t('templates.item.reactivate')}
             </button>
           ) : (
             <button className="button--secondary" type="button" onClick={onRemoveItem}>
-              Remove item
+              {t('templates.item.remove')}
             </button>
           )}
         </div>
@@ -86,7 +88,7 @@ export function PreventiveChecklistItemEditor({
 
       <div className="field-grid field-grid--three-columns">
         <div className="field">
-          <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.itemKey`}>Item key</label>
+          <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.itemKey`}>{t('templates.item.key')}</label>
           <input
             id={`sections.${sectionIndex}.checklistItems.${itemIndex}.itemKey`}
             type="text"
@@ -104,7 +106,7 @@ export function PreventiveChecklistItemEditor({
         </div>
 
         <div className="field">
-          <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.label`}>Label</label>
+          <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.label`}>{t('templates.item.label')}</label>
           <input
             id={`sections.${sectionIndex}.checklistItems.${itemIndex}.label`}
             type="text"
@@ -114,15 +116,15 @@ export function PreventiveChecklistItemEditor({
         </div>
 
         <div className="field">
-          <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.itemType`}>Item type</label>
+          <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.itemType`}>{t('templates.item.type')}</label>
           <select
             id={`sections.${sectionIndex}.checklistItems.${itemIndex}.itemType`}
             {...register(`sections.${sectionIndex}.checklistItems.${itemIndex}.itemType`)}
           >
-            <option value="yesNo">Yes / No</option>
-            <option value="text">Text</option>
-            <option value="numeric">Numeric</option>
-            <option value="select">Select</option>
+            <option value="yesNo">{t('templates.item.yesNo')}</option>
+            <option value="text">{t('templates.item.text')}</option>
+            <option value="numeric">{t('templates.item.numeric')}</option>
+            <option value="select">{t('templates.item.select')}</option>
           </select>
           {error?.itemType ? <span className="field__error">{error.itemType.message}</span> : null}
         </div>
@@ -130,7 +132,7 @@ export function PreventiveChecklistItemEditor({
 
       <div className="field-grid field-grid--three-columns">
         <div className="field">
-          <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.displayOrder`}>Display order</label>
+          <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.displayOrder`}>{t('entity.form.displayOrder')}</label>
           <input
             id={`sections.${sectionIndex}.checklistItems.${itemIndex}.displayOrder`}
             type="number"
@@ -146,7 +148,7 @@ export function PreventiveChecklistItemEditor({
             type="checkbox"
             {...register(`sections.${sectionIndex}.checklistItems.${itemIndex}.isRequired`)}
           />
-          <span>Required item</span>
+          <span>{t('templates.item.required')}</span>
         </label>
 
         <label className="checkbox-field" htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.isActive`}>
@@ -155,13 +157,13 @@ export function PreventiveChecklistItemEditor({
             type="checkbox"
             {...register(`sections.${sectionIndex}.checklistItems.${itemIndex}.isActive`)}
           />
-          <span>Item is active</span>
+          <span>{t('templates.item.isActive')}</span>
         </label>
       </div>
 
       <div className="field-grid field-grid--two-columns">
         <div className="field">
-          <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.helpText`}>Help text</label>
+          <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.helpText`}>{t('entity.form.helpText')}</label>
           <textarea
             id={`sections.${sectionIndex}.checklistItems.${itemIndex}.helpText`}
             rows={2}
@@ -177,7 +179,7 @@ export function PreventiveChecklistItemEditor({
               type="checkbox"
               {...register(`sections.${sectionIndex}.checklistItems.${itemIndex}.isCritical`)}
             />
-            <span>Critical item</span>
+            <span>{t('templates.item.critical')}</span>
           </label>
 
           {showsFailureRequirements ? (
@@ -191,7 +193,7 @@ export function PreventiveChecklistItemEditor({
                   type="checkbox"
                   {...register(`sections.${sectionIndex}.checklistItems.${itemIndex}.requiresCommentOnFailure`)}
                 />
-                <span>Comment required on failure</span>
+                <span>{t('templates.item.commentOnFailure')}</span>
               </label>
 
               <label
@@ -203,7 +205,7 @@ export function PreventiveChecklistItemEditor({
                   type="checkbox"
                   {...register(`sections.${sectionIndex}.checklistItems.${itemIndex}.requiresPhotoOnFailure`)}
                 />
-                <span>Photo required on failure</span>
+                <span>{t('templates.item.photoOnFailure')}</span>
               </label>
             </>
           ) : null}
@@ -213,7 +215,7 @@ export function PreventiveChecklistItemEditor({
       {itemType === 'numeric' ? (
         <div className="field-grid field-grid--two-columns">
           <div className="field">
-            <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.minimumValue`}>Minimum value</label>
+            <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.minimumValue`}>{t('templates.item.minimum')}</label>
             <input
               id={`sections.${sectionIndex}.checklistItems.${itemIndex}.minimumValue`}
               type="number"
@@ -226,7 +228,7 @@ export function PreventiveChecklistItemEditor({
           </div>
 
           <div className="field">
-            <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.maximumValue`}>Maximum value</label>
+            <label htmlFor={`sections.${sectionIndex}.checklistItems.${itemIndex}.maximumValue`}>{t('templates.item.maximum')}</label>
             <input
               id={`sections.${sectionIndex}.checklistItems.${itemIndex}.maximumValue`}
               type="number"

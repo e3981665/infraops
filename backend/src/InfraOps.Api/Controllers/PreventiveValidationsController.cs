@@ -23,19 +23,22 @@ public sealed class PreventiveValidationsController : ControllerBase
     private readonly ICommandHandler<ApprovePreventiveExecutionCommand, PreventiveExecutionDetailsDto> _approveHandler;
     private readonly ICommandHandler<RejectPreventiveExecutionCommand, PreventiveExecutionDetailsDto> _rejectHandler;
     private readonly ICommandHandler<RequestPreventiveReworkCommand, PreventiveExecutionDetailsDto> _requestReworkHandler;
+    private readonly ILogger<PreventiveValidationsController> _logger;
 
     public PreventiveValidationsController(
         IQueryHandler<ListPreventiveValidationsQuery, IReadOnlyCollection<PreventiveExecutionSummaryDto>> listHandler,
         IQueryHandler<GetPreventiveValidationDetailQuery, PreventiveExecutionDetailsDto> detailHandler,
         ICommandHandler<ApprovePreventiveExecutionCommand, PreventiveExecutionDetailsDto> approveHandler,
         ICommandHandler<RejectPreventiveExecutionCommand, PreventiveExecutionDetailsDto> rejectHandler,
-        ICommandHandler<RequestPreventiveReworkCommand, PreventiveExecutionDetailsDto> requestReworkHandler)
+        ICommandHandler<RequestPreventiveReworkCommand, PreventiveExecutionDetailsDto> requestReworkHandler,
+        ILogger<PreventiveValidationsController> logger)
     {
         _listHandler = listHandler;
         _detailHandler = detailHandler;
         _approveHandler = approveHandler;
         _rejectHandler = rejectHandler;
         _requestReworkHandler = requestReworkHandler;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -92,6 +95,10 @@ public sealed class PreventiveValidationsController : ControllerBase
             new ApprovePreventiveExecutionCommand(preventiveExecutionId, request?.Comment),
             cancellationToken);
 
+        _logger.LogInformation(
+            "Preventive execution approved {PreventiveExecutionId}.",
+            result.Id);
+
         return Ok(MapResponse(result));
     }
 
@@ -106,6 +113,10 @@ public sealed class PreventiveValidationsController : ControllerBase
             new RejectPreventiveExecutionCommand(preventiveExecutionId, request.Reason),
             cancellationToken);
 
+        _logger.LogInformation(
+            "Preventive execution rejected {PreventiveExecutionId}.",
+            result.Id);
+
         return Ok(MapResponse(result));
     }
 
@@ -119,6 +130,10 @@ public sealed class PreventiveValidationsController : ControllerBase
         var result = await _requestReworkHandler.Handle(
             new RequestPreventiveReworkCommand(preventiveExecutionId, request.Reason),
             cancellationToken);
+
+        _logger.LogInformation(
+            "Preventive execution rework requested {PreventiveExecutionId}.",
+            result.Id);
 
         return Ok(MapResponse(result));
     }

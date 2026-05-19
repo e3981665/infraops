@@ -9,8 +9,11 @@ import { preventiveExecutionsClient } from '@/modules/preventive-executions/api/
 import { preventiveExecutionQueryKeys } from '@/modules/preventive-executions/api/preventive-execution-query-keys'
 import type { PreventiveExecutionAnswerInput } from '@/modules/preventive-executions/types/preventive-execution'
 import { buildPreventiveExecutionEditPath } from '@/shared/routing/route-paths'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+import { localizeDemoText } from '@/shared/i18n/localized-domain-labels'
 
 export function PreventiveExecutionStartPage() {
+  const { locale, t } = useTranslation()
   const navigate = useNavigate()
   const { session } = useAuthSession()
   const accessToken = session?.tokens.accessToken
@@ -87,7 +90,7 @@ export function PreventiveExecutionStartPage() {
     }
 
     if (!inventoryItemId) {
-      throw new Error('Select an inventory item before saving.')
+      throw new Error(t('executions.selectBeforeSaving'))
     }
 
     const execution = await startMutation.mutateAsync()
@@ -114,14 +117,14 @@ export function PreventiveExecutionStartPage() {
     <section className="module-panel">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Start execution</p>
-          <h1>Create a preventive execution.</h1>
+          <p className="hero-panel__eyebrow">{t('executions.startEyebrow')}</p>
+          <h1>{t('executions.startTitle')}</h1>
         </div>
-        <p>Select an active inventory item to load its active preventive template.</p>
+        <p>{t('executions.startDescription')}</p>
       </div>
 
       <div className="field">
-        <label htmlFor="executionInventoryItem">Inventory item</label>
+        <label htmlFor="executionInventoryItem">{t('executions.inventoryItem')}</label>
         <select
           id="executionInventoryItem"
           value={inventoryItemId}
@@ -130,10 +133,10 @@ export function PreventiveExecutionStartPage() {
             setStartedExecutionId(null)
           }}
         >
-          <option value="">Select an inventory item</option>
+          <option value="">{t('executions.selectInventoryItem')}</option>
           {(inventoryQuery.data ?? []).map((item) => (
             <option key={item.id} value={item.id}>
-              {item.displayName} - {item.entityTypeName}
+              {item.displayName} - {localizeDemoText(item.entityTypeName, locale)}
             </option>
           ))}
         </select>

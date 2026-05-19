@@ -3,4 +3,5 @@ namespace InfraOps.Api.Contracts.Responses;
 public sealed record ErrorResponse(
     string Code,
     string Message,
-    IReadOnlyDictionary<string, string[]>? Errors = null);
+    IReadOnlyDictionary<string, string[]>? Errors = null,
+    string? CorrelationId = null);

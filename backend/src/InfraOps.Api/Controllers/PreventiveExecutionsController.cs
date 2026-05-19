@@ -26,6 +26,7 @@ public sealed class PreventiveExecutionsController : ControllerBase
     private readonly ICommandHandler<StartPreventiveExecutionCommand, PreventiveExecutionDetailsDto> _startHandler;
     private readonly ICommandHandler<SavePreventiveExecutionDraftCommand, PreventiveExecutionDetailsDto> _saveDraftHandler;
     private readonly ICommandHandler<SubmitPreventiveExecutionCommand, PreventiveExecutionDetailsDto> _submitHandler;
+    private readonly ILogger<PreventiveExecutionsController> _logger;
 
     public PreventiveExecutionsController(
         IQueryHandler<ListPreventiveExecutionsQuery, IReadOnlyCollection<PreventiveExecutionSummaryDto>> listHandler,
@@ -33,7 +34,8 @@ public sealed class PreventiveExecutionsController : ControllerBase
         IQueryHandler<GetPreventiveExecutionFormDefinitionQuery, PreventiveExecutionFormDefinitionDto> getFormDefinitionHandler,
         ICommandHandler<StartPreventiveExecutionCommand, PreventiveExecutionDetailsDto> startHandler,
         ICommandHandler<SavePreventiveExecutionDraftCommand, PreventiveExecutionDetailsDto> saveDraftHandler,
-        ICommandHandler<SubmitPreventiveExecutionCommand, PreventiveExecutionDetailsDto> submitHandler)
+        ICommandHandler<SubmitPreventiveExecutionCommand, PreventiveExecutionDetailsDto> submitHandler,
+        ILogger<PreventiveExecutionsController> logger)
     {
         _listHandler = listHandler;
         _getByIdHandler = getByIdHandler;
@@ -41,6 +43,7 @@ public sealed class PreventiveExecutionsController : ControllerBase
         _startHandler = startHandler;
         _saveDraftHandler = saveDraftHandler;
         _submitHandler = submitHandler;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -146,6 +149,11 @@ public sealed class PreventiveExecutionsController : ControllerBase
                 preventiveExecutionId,
                 request is null ? null : MapAnswers(request.Answers)),
             cancellationToken);
+
+        _logger.LogInformation(
+            "Preventive execution submitted {PreventiveExecutionId} for inventory item {InventoryItemId}.",
+            result.Id,
+            result.InventoryItemId);
 
         return Ok(MapResponse(result));
     }

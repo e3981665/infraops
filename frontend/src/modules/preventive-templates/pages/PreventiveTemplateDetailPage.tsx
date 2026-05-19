@@ -8,8 +8,14 @@ import {
   buildPreventiveTemplateEditPath,
   routePaths,
 } from '@/shared/routing/route-paths'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+import {
+  localizeChecklistItemType,
+  localizeDemoText,
+} from '@/shared/i18n/localized-domain-labels'
 
 export function PreventiveTemplateDetailPage() {
+  const { locale, t } = useTranslation()
   const { preventiveTemplateId } = useParams()
   const queryClient = useQueryClient()
   const { hasPermission, session } = useAuthSession()
@@ -51,9 +57,9 @@ export function PreventiveTemplateDetailPage() {
   if (!preventiveTemplateId || !accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive template administration</p>
-        <h1>Preventive template could not be resolved.</h1>
-        <p>The detail route requires a valid preventive template id and an authenticated session.</p>
+        <p className="hero-panel__eyebrow">{t('templates.detail.administration')}</p>
+        <h1>{t('templates.detail.unresolvedTitle')}</h1>
+        <p>{t('templates.detail.unresolvedHelp')}</p>
       </section>
     )
   }
@@ -61,9 +67,9 @@ export function PreventiveTemplateDetailPage() {
   if (templateQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive template administration</p>
-        <h1>Loading preventive template definition.</h1>
-        <p>InfraOps is fetching the current checklist structure for review.</p>
+        <p className="hero-panel__eyebrow">{t('templates.detail.administration')}</p>
+        <h1>{t('templates.detail.loadingTitle')}</h1>
+        <p>{t('templates.detail.loadingHelp')}</p>
       </section>
     )
   }
@@ -71,9 +77,9 @@ export function PreventiveTemplateDetailPage() {
   if (templateQuery.isError || !templateQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive template administration</p>
-        <h1>Preventive template could not be loaded.</h1>
-        <p>{templateQuery.error?.message ?? 'The preventive template was not found.'}</p>
+        <p className="hero-panel__eyebrow">{t('templates.detail.administration')}</p>
+        <h1>{t('templates.detail.loadFailed')}</h1>
+        <p>{templateQuery.error?.message ?? t('templates.detail.notFound')}</p>
       </section>
     )
   }
@@ -84,22 +90,21 @@ export function PreventiveTemplateDetailPage() {
     <section className="module-panel">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Preventive template administration</p>
-          <h1>{template.name}</h1>
+          <p className="hero-panel__eyebrow">{t('templates.detail.administration')}</p>
+          <h1>{localizeDemoText(template.name, locale)}</h1>
         </div>
         <p>
-          Review the active and inactive checklist structure that preventive execution will later
-          consume.
+          {t('templates.detail.description')}
         </p>
       </div>
 
       <div className="module-panel__actions">
         <Link className="button--secondary" to={routePaths.preventiveTemplates}>
-          Back to list
+          {t('common.backToList')}
         </Link>
         {canWrite ? (
           <Link className="button--secondary" to={buildPreventiveTemplateEditPath(template.id)}>
-            Edit template
+            {t('templates.detail.edit')}
           </Link>
         ) : null}
         {canWrite ? (
@@ -115,36 +120,36 @@ export function PreventiveTemplateDetailPage() {
               void activateMutation.mutateAsync()
             }}
           >
-            {template.isActive ? 'Deactivate template' : 'Activate template'}
+            {template.isActive ? t('templates.detail.deactivate') : t('templates.detail.activate')}
           </button>
         ) : null}
       </div>
 
       <div className="detail-grid">
         <article className="card">
-          <h2>Metadata</h2>
+          <h2>{t('common.metadata')}</h2>
           <dl className="definition-list">
             <div>
-              <dt>Entity type</dt>
-              <dd>{template.entityTypeName}</dd>
+              <dt>{t('common.entityType')}</dt>
+              <dd>{localizeDemoText(template.entityTypeName, locale)}</dd>
             </div>
             <div>
-              <dt>Code</dt>
+              <dt>{t('common.code')}</dt>
               <dd>
                 <code>{template.code}</code>
               </dd>
             </div>
             <div>
-              <dt>Status</dt>
-              <dd>{template.isActive ? 'Active' : 'Inactive'}</dd>
+              <dt>{t('common.status')}</dt>
+              <dd>{template.isActive ? t('common.active') : t('common.inactive')}</dd>
             </div>
             <div>
-              <dt>Sections</dt>
+              <dt>{t('templates.sections')}</dt>
               <dd>{template.sections.filter((section) => section.isActive).length}</dd>
             </div>
             <div>
-              <dt>Description</dt>
-              <dd>{template.description || 'No description provided.'}</dd>
+              <dt>{t('entity.form.description')}</dt>
+              <dd>{localizeDemoText(template.description, locale) || t('common.noDescription')}</dd>
             </div>
           </dl>
         </article>
@@ -153,8 +158,8 @@ export function PreventiveTemplateDetailPage() {
       <section className="form-section">
         <div className="form-section__heading">
           <div>
-            <h2>Sections and checklist items</h2>
-            <p>Inactive sections and items remain visible for audit-friendly admin review.</p>
+            <h2>{t('templates.detail.structureTitle')}</h2>
+            <p>{t('templates.detail.structureHelp')}</p>
           </div>
         </div>
 
@@ -166,11 +171,11 @@ export function PreventiveTemplateDetailPage() {
             >
               <div className="entity-field-editor__header">
                 <div>
-                  <h3>{section.title}</h3>
-                  <p>Display order {section.displayOrder}</p>
+                  <h3>{localizeDemoText(section.title, locale)}</h3>
+                  <p>{t('entity.detail.displayOrderWithValue', { value: section.displayOrder })}</p>
                 </div>
                 <span className={`status-chip${section.isActive ? '' : ' status-chip--inactive'}`}>
-                  {section.isActive ? 'Active' : 'Inactive'}
+                  {section.isActive ? t('common.active') : t('common.inactive')}
                 </span>
               </div>
 
@@ -182,54 +187,54 @@ export function PreventiveTemplateDetailPage() {
                   >
                     <div className="entity-field-editor__header">
                       <div>
-                        <h4>{item.label}</h4>
+                        <h4>{localizeDemoText(item.label, locale)}</h4>
                         <p>
                           <code>{item.itemKey}</code>
                         </p>
                       </div>
                       <span className={`status-chip${item.isActive ? '' : ' status-chip--inactive'}`}>
-                        {item.isActive ? 'Active' : 'Inactive'}
+                        {item.isActive ? t('common.active') : t('common.inactive')}
                       </span>
                     </div>
 
                     <dl className="definition-list definition-list--compact">
                       <div>
-                        <dt>Item type</dt>
-                        <dd>{item.itemType}</dd>
+                        <dt>{t('templates.item.type')}</dt>
+                        <dd>{localizeChecklistItemType(item.itemType, locale)}</dd>
                       </div>
                       <div>
-                        <dt>Display order</dt>
+                        <dt>{t('entity.form.displayOrder')}</dt>
                         <dd>{item.displayOrder}</dd>
                       </div>
                       <div>
-                        <dt>Required</dt>
-                        <dd>{item.isRequired ? 'Yes' : 'No'}</dd>
+                        <dt>{t('common.required')}</dt>
+                        <dd>{item.isRequired ? t('common.yes') : t('common.no')}</dd>
                       </div>
                       <div>
-                        <dt>Critical</dt>
-                        <dd>{item.isCritical ? 'Yes' : 'No'}</dd>
+                        <dt>{t('templates.item.critical')}</dt>
+                        <dd>{item.isCritical ? t('common.yes') : t('common.no')}</dd>
                       </div>
                       <div>
-                        <dt>Comment on failure</dt>
-                        <dd>{item.requiresCommentOnFailure ? 'Yes' : 'No'}</dd>
+                        <dt>{t('templates.detail.commentOnFailure')}</dt>
+                        <dd>{item.requiresCommentOnFailure ? t('common.yes') : t('common.no')}</dd>
                       </div>
                       <div>
-                        <dt>Photo on failure</dt>
-                        <dd>{item.requiresPhotoOnFailure ? 'Yes' : 'No'}</dd>
+                        <dt>{t('templates.detail.photoOnFailure')}</dt>
+                        <dd>{item.requiresPhotoOnFailure ? t('common.yes') : t('common.no')}</dd>
                       </div>
                       <div>
-                        <dt>Help text</dt>
-                        <dd>{item.helpText || 'Not defined'}</dd>
+                        <dt>{t('entity.form.helpText')}</dt>
+                        <dd>{localizeDemoText(item.helpText, locale) || t('common.notDefined')}</dd>
                       </div>
                       {item.itemType === 'numeric' ? (
                         <>
                           <div>
-                            <dt>Minimum value</dt>
-                            <dd>{item.minimumValue ?? 'Not defined'}</dd>
+                            <dt>{t('templates.item.minimum')}</dt>
+                            <dd>{item.minimumValue ?? t('common.notDefined')}</dd>
                           </div>
                           <div>
-                            <dt>Maximum value</dt>
-                            <dd>{item.maximumValue ?? 'Not defined'}</dd>
+                            <dt>{t('templates.item.maximum')}</dt>
+                            <dd>{item.maximumValue ?? t('common.notDefined')}</dd>
                           </div>
                         </>
                       ) : null}
@@ -239,19 +244,19 @@ export function PreventiveTemplateDetailPage() {
                       <div className="select-options-panel">
                         <div className="form-section__heading">
                           <div>
-                            <h4>Select options</h4>
+                            <h4>{t('templates.options.title')}</h4>
                           </div>
                         </div>
                         <div className="entity-field-option-list">
                           {item.options.map((option) => (
                             <div className="entity-field-option-row" key={option.id}>
                               <div>
-                                <strong>{option.label}</strong>
+                                <strong>{localizeDemoText(option.label, locale)}</strong>
                                 <p>
                                   <code>{option.value}</code>
                                 </p>
                               </div>
-                              <span>Order {option.displayOrder}</span>
+                              <span>{t('entity.detail.displayOrderWithValue', { value: option.displayOrder })}</span>
                             </div>
                           ))}
                         </div>

@@ -7,6 +7,8 @@ import { useAuthSession } from '@/modules/auth/hooks/useAuthSession'
 import { preventiveExecutionsClient } from '@/modules/preventive-executions/api/preventive-executions-client'
 import { preventiveExecutionQueryKeys } from '@/modules/preventive-executions/api/preventive-execution-query-keys'
 import type { PreventiveExecutionListFilters } from '@/modules/preventive-executions/types/preventive-execution'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+import { localizeDemoText } from '@/shared/i18n/localized-domain-labels'
 import {
   buildPreventiveExecutionDetailPath,
   buildPreventiveExecutionEditPath,
@@ -25,6 +27,7 @@ const defaultFilters: PreventiveExecutionListFilters = {
 
 export function PreventiveExecutionListPage() {
   const { hasPermission, session } = useAuthSession()
+  const { locale, t } = useTranslation()
   const accessToken = session?.tokens.accessToken
   const [filters, setFilters] = useState(defaultFilters)
   const canExecute = hasPermission(permissionCodes.preventiveExecute)
@@ -38,8 +41,8 @@ export function PreventiveExecutionListPage() {
   if (!accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive execution</p>
-        <h1>Authenticated access is required.</h1>
+        <p className="hero-panel__eyebrow">{t('executions.eyebrow')}</p>
+        <h1>{t('common.authRequired')}</h1>
       </section>
     )
   }
@@ -47,8 +50,8 @@ export function PreventiveExecutionListPage() {
   if (executionsQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive execution</p>
-        <h1>Loading executions.</h1>
+        <p className="hero-panel__eyebrow">{t('executions.eyebrow')}</p>
+        <h1>{t('executions.loadingTitle')}</h1>
       </section>
     )
   }
@@ -56,8 +59,8 @@ export function PreventiveExecutionListPage() {
   if (executionsQuery.isError) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive execution</p>
-        <h1>Executions could not be loaded.</h1>
+        <p className="hero-panel__eyebrow">{t('executions.eyebrow')}</p>
+        <h1>{t('executions.errorTitle')}</h1>
         <p>{executionsQuery.error.message}</p>
       </section>
     )
@@ -69,16 +72,16 @@ export function PreventiveExecutionListPage() {
     <section className="module-panel">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Preventive execution</p>
-          <h1>Maintenance checklist executions.</h1>
+          <p className="hero-panel__eyebrow">{t('executions.eyebrow')}</p>
+          <h1>{t('executions.listTitle')}</h1>
         </div>
-        <p>Start, resume, and review operational preventive maintenance executions.</p>
+        <p>{t('executions.listDescription')}</p>
       </div>
 
       <div className="module-panel__actions">
         {canExecute ? (
           <Link className="button" to={routePaths.preventiveExecutionCreate}>
-            Start execution
+            {t('executions.start')}
           </Link>
         ) : null}
       </div>
@@ -86,22 +89,22 @@ export function PreventiveExecutionListPage() {
       <section className="form-section">
         <div className="field-grid field-grid--three-columns">
           <div className="field">
-            <label htmlFor="executionStatusFilter">Status</label>
+            <label htmlFor="executionStatusFilter">{t('common.status')}</label>
             <select
               id="executionStatusFilter"
               value={filters.status}
               onChange={(event) => setFilters({ ...filters, status: event.target.value })}
             >
-              <option value="">All statuses</option>
-              <option value="draft">Draft</option>
-              <option value="submitted">Submitted</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="reworkRequested">Rework requested</option>
+              <option value="">{t('common.allStatuses')}</option>
+              <option value="draft">{t('status.draft')}</option>
+              <option value="submitted">{t('status.submitted')}</option>
+              <option value="approved">{t('status.approved')}</option>
+              <option value="rejected">{t('status.rejected')}</option>
+              <option value="reworkRequested">{t('status.reworkRequested')}</option>
             </select>
           </div>
           <div className="field">
-            <label htmlFor="executionSearchFilter">Search</label>
+            <label htmlFor="executionSearchFilter">{t('common.search')}</label>
             <input
               id="executionSearchFilter"
               type="text"
@@ -118,27 +121,27 @@ export function PreventiveExecutionListPage() {
                 setFilters({ ...filters, createdByCurrentUser: event.target.checked })
               }
             />
-            Current user only
+            {t('executions.currentUserOnly')}
           </label>
         </div>
       </section>
 
       {executions.length === 0 ? (
         <div className="empty-state">
-          <h2>No preventive executions match the current filters.</h2>
+          <h2>{t('executions.emptyTitle')}</h2>
         </div>
       ) : (
         <div className="table-panel">
           <table className="data-table">
             <thead>
               <tr>
-                <th scope="col">Inventory item</th>
-                <th scope="col">Entity type</th>
-                <th scope="col">Template</th>
-                <th scope="col">Status</th>
-                <th scope="col">Started by</th>
-                <th scope="col">Last updated</th>
-                <th scope="col">Actions</th>
+                <th scope="col">{t('executions.inventoryItem')}</th>
+                <th scope="col">{t('common.entityType')}</th>
+                <th scope="col">{t('executions.template')}</th>
+                <th scope="col">{t('common.status')}</th>
+                <th scope="col">{t('executions.startedBy')}</th>
+                <th scope="col">{t('executions.lastUpdated')}</th>
+                <th scope="col">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -146,10 +149,10 @@ export function PreventiveExecutionListPage() {
                 <tr key={execution.id}>
                   <td>
                     <strong>{execution.inventoryItemDisplayName}</strong>
-                    <small>{execution.siteName}</small>
+                    <small>{localizeDemoText(execution.siteName, locale)}</small>
                   </td>
-                  <td>{execution.entityTypeName}</td>
-                  <td>{execution.preventiveTemplateName}</td>
+                  <td>{localizeDemoText(execution.entityTypeName, locale)}</td>
+                  <td>{localizeDemoText(execution.preventiveTemplateName, locale)}</td>
                   <td>
                     <StatusBadge value={execution.status} />
                   </td>
@@ -161,14 +164,14 @@ export function PreventiveExecutionListPage() {
                         className="button--secondary"
                         to={buildPreventiveExecutionDetailPath(execution.id)}
                       >
-                        View
+                        {t('common.view')}
                       </Link>
                       {canExecute && execution.status === 'draft' ? (
                         <Link
                           className="button--secondary"
                           to={buildPreventiveExecutionEditPath(execution.id)}
                         >
-                          Resume
+                          {t('executions.resume')}
                         </Link>
                       ) : null}
                     </div>

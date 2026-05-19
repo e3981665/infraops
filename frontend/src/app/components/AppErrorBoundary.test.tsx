@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { AppErrorBoundary } from '@/app/components/AppErrorBoundary'
+import { I18nProvider } from '@/shared/i18n/I18nProvider'
 
 function ThrowingRoute() {
   throw new Error('Route failed')
@@ -12,9 +13,11 @@ describe('AppErrorBoundary', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
     render(
-      <AppErrorBoundary>
-        <ThrowingRoute />
-      </AppErrorBoundary>,
+      <I18nProvider>
+        <AppErrorBoundary>
+          <ThrowingRoute />
+        </AppErrorBoundary>
+      </I18nProvider>,
     )
 
     expect(

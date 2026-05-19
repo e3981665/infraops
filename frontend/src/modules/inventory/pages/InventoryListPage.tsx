@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { StatusBadge } from '@/components/status/StatusBadge'
 import { permissionCodes } from '@/modules/auth/authorization/permission-codes'
 import { useAuthSession } from '@/modules/auth/hooks/useAuthSession'
 import { inventoryClient } from '@/modules/inventory/api/inventory-client'
 import { inventoryQueryKeys } from '@/modules/inventory/api/inventory-query-keys'
 import type { InventoryListFilters } from '@/modules/inventory/types/inventory'
 import { getSitesForRegion } from '@/modules/inventory/utils/inventory-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+import { localizeDemoText } from '@/shared/i18n/localized-domain-labels'
 import {
   buildInventoryDetailPath,
   buildInventoryEditPath,
@@ -25,6 +28,7 @@ const defaultFilters: InventoryListFilters = {
 export function InventoryListPage() {
   const queryClient = useQueryClient()
   const { hasPermission, session } = useAuthSession()
+  const { locale, t } = useTranslation()
   const accessToken = session?.tokens.accessToken
   const [filters, setFilters] = useState<InventoryListFilters>(defaultFilters)
   const canWrite = hasPermission(permissionCodes.inventoryWrite)
@@ -70,9 +74,9 @@ export function InventoryListPage() {
   if (!accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Authenticated access is required.</h1>
-        <p>The inventory workspace is waiting for a valid session.</p>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('common.authRequired')}</h1>
+        <p>{t('inventory.authMessage')}</p>
       </section>
     )
   }
@@ -80,9 +84,9 @@ export function InventoryListPage() {
   if (metadataQuery.isLoading || inventoryItemsQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Loading registered infrastructure.</h1>
-        <p>InfraOps is fetching the current inventory catalog and filter metadata.</p>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('inventory.loadingTitle')}</h1>
+        <p>{t('inventory.loadingMessage')}</p>
       </section>
     )
   }
@@ -90,8 +94,8 @@ export function InventoryListPage() {
   if (metadataQuery.isError || inventoryItemsQuery.isError || !metadataQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Inventory</p>
-        <h1>Inventory could not be loaded.</h1>
+        <p className="hero-panel__eyebrow">{t('inventory.eyebrow')}</p>
+        <h1>{t('inventory.errorTitle')}</h1>
         <p>{metadataQuery.error?.message ?? inventoryItemsQuery.error?.message}</p>
       </section>
     )
@@ -104,19 +108,16 @@ export function InventoryListPage() {
     <section className="module-panel">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Inventory management</p>
-          <h1>Registered infrastructure inventory.</h1>
+          <p className="hero-panel__eyebrow">{t('inventory.management')}</p>
+          <h1>{t('inventory.listTitle')}</h1>
         </div>
-        <p>
-          Register, review, and maintain infrastructure items against the active
-          entity type definitions.
-        </p>
+        <p>{t('inventory.listDescription')}</p>
       </div>
 
       <div className="module-panel__actions">
         {canWrite ? (
           <Link className="button" to={routePaths.inventoryCreate}>
-            Register inventory item
+            {t('inventory.register')}
           </Link>
         ) : null}
       </div>
@@ -124,14 +125,14 @@ export function InventoryListPage() {
       <section className="form-section">
         <div className="form-section__heading">
           <div>
-            <h2>Filters</h2>
-            <p>Refine the MVP list by type, location, lifecycle state, or free-text search.</p>
+            <h2>{t('common.filters')}</h2>
+            <p>{t('inventory.filterHelp')}</p>
           </div>
         </div>
 
         <div className="field-grid field-grid--three-columns">
           <div className="field">
-            <label htmlFor="inventoryFilterEntityType">Entity type</label>
+            <label htmlFor="inventoryFilterEntityType">{t('common.entityType')}</label>
             <select
               id="inventoryFilterEntityType"
               value={filters.entityTypeId}
@@ -142,17 +143,17 @@ export function InventoryListPage() {
                 }))
               }}
             >
-              <option value="">All entity types</option>
+              <option value="">{t('common.allEntityTypes')}</option>
               {metadata.entityTypes.map((entityType) => (
                 <option key={entityType.id} value={entityType.id}>
-                  {entityType.name}
+                  {localizeDemoText(entityType.name, locale)}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="field">
-            <label htmlFor="inventoryFilterRegion">Region</label>
+            <label htmlFor="inventoryFilterRegion">{t('common.region')}</label>
             <select
               id="inventoryFilterRegion"
               value={filters.regionId}
@@ -164,17 +165,17 @@ export function InventoryListPage() {
                 }))
               }}
             >
-              <option value="">All regions</option>
+              <option value="">{t('common.allRegions')}</option>
               {metadata.regions.map((region) => (
                 <option key={region.id} value={region.id}>
-                  {region.name}
+                  {localizeDemoText(region.name, locale)}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="field">
-            <label htmlFor="inventoryFilterSite">Site</label>
+            <label htmlFor="inventoryFilterSite">{t('common.site')}</label>
             <select
               id="inventoryFilterSite"
               value={selectedSiteId}
@@ -185,10 +186,10 @@ export function InventoryListPage() {
                 }))
               }}
             >
-              <option value="">All sites</option>
+              <option value="">{t('common.allSites')}</option>
               {availableSites.map((site) => (
                 <option key={site.id} value={site.id}>
-                  {site.name}
+                  {localizeDemoText(site.name, locale)}
                 </option>
               ))}
             </select>
@@ -197,7 +198,7 @@ export function InventoryListPage() {
 
         <div className="field-grid field-grid--three-columns">
           <div className="field">
-            <label htmlFor="inventoryFilterStatus">Status</label>
+            <label htmlFor="inventoryFilterStatus">{t('common.status')}</label>
             <select
               id="inventoryFilterStatus"
               value={filters.status}
@@ -208,17 +209,17 @@ export function InventoryListPage() {
                 }))
               }}
             >
-              <option value="">All statuses</option>
+              <option value="">{t('common.allStatuses')}</option>
               {metadata.statuses.map((status) => (
                 <option key={status.code} value={status.code}>
-                  {status.label}
+                  {localizeDemoText(status.label, locale)}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="field">
-            <label htmlFor="inventoryFilterActivity">Lifecycle state</label>
+            <label htmlFor="inventoryFilterActivity">{t('common.lifecycle')}</label>
             <select
               id="inventoryFilterActivity"
               value={filters.isActive}
@@ -229,19 +230,19 @@ export function InventoryListPage() {
                 }))
               }}
             >
-              <option value="">All items</option>
-              <option value="true">Active only</option>
-              <option value="false">Inactive only</option>
+              <option value="">{t('inventory.allItems')}</option>
+              <option value="true">{t('inventory.activeOnly')}</option>
+              <option value="false">{t('inventory.inactiveOnly')}</option>
             </select>
           </div>
 
           <div className="field">
-            <label htmlFor="inventoryFilterSearch">Search</label>
+            <label htmlFor="inventoryFilterSearch">{t('common.search')}</label>
             <input
               id="inventoryFilterSearch"
               type="text"
               value={filters.search}
-              placeholder="Display name"
+              placeholder={t('inventory.searchPlaceholder')}
               onChange={(event) => {
                 setFilters((currentFilters) => ({
                   ...currentFilters,
@@ -255,21 +256,21 @@ export function InventoryListPage() {
 
       {inventoryItems.length === 0 ? (
         <div className="empty-state">
-          <h2>No inventory items match the current filters.</h2>
-          <p>Create the first item or loosen the filters to review the catalog.</p>
+          <h2>{t('inventory.emptyTitle')}</h2>
+          <p>{t('inventory.emptyMessage')}</p>
         </div>
       ) : (
         <div className="table-panel">
           <table className="data-table">
             <thead>
               <tr>
-                <th scope="col">Display name</th>
-                <th scope="col">Entity type</th>
-                <th scope="col">Region</th>
-                <th scope="col">Site</th>
-                <th scope="col">Status</th>
-                <th scope="col">Lifecycle</th>
-                <th scope="col">Actions</th>
+                <th scope="col">{t('inventory.displayName')}</th>
+                <th scope="col">{t('common.entityType')}</th>
+                <th scope="col">{t('common.region')}</th>
+                <th scope="col">{t('common.site')}</th>
+                <th scope="col">{t('common.status')}</th>
+                <th scope="col">{t('common.lifecycle')}</th>
+                <th scope="col">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -278,30 +279,32 @@ export function InventoryListPage() {
                   <td>
                     <strong>{inventoryItem.displayName}</strong>
                     {inventoryItem.installationDate ? (
-                      <small>Installed {inventoryItem.installationDate}</small>
+                      <small>{t('inventory.installed', { date: inventoryItem.installationDate })}</small>
                     ) : null}
                   </td>
-                  <td>{inventoryItem.entityTypeName}</td>
-                  <td>{inventoryItem.regionName}</td>
-                  <td>{inventoryItem.siteName}</td>
-                  <td>{inventoryItem.status}</td>
+                  <td>{localizeDemoText(inventoryItem.entityTypeName, locale)}</td>
+                  <td>{localizeDemoText(inventoryItem.regionName, locale)}</td>
+                  <td>{localizeDemoText(inventoryItem.siteName, locale)}</td>
+                  <td>
+                    <StatusBadge value={inventoryItem.status} />
+                  </td>
                   <td>
                     <span
                       className={`status-chip${
                         inventoryItem.isActive ? '' : ' status-chip--inactive'
                       }`}
                     >
-                      {inventoryItem.isActive ? 'Active' : 'Inactive'}
+                      {inventoryItem.isActive ? t('common.active') : t('common.inactive')}
                     </span>
                   </td>
                   <td>
                     <div className="inline-actions">
                       <Link className="button--secondary" to={buildInventoryDetailPath(inventoryItem.id)}>
-                        View
+                        {t('common.view')}
                       </Link>
                       {canWrite ? (
                         <Link className="button--secondary" to={buildInventoryEditPath(inventoryItem.id)}>
-                          Edit
+                          {t('common.edit')}
                         </Link>
                       ) : null}
                       {canWrite ? (
@@ -317,7 +320,7 @@ export function InventoryListPage() {
                             void activateMutation.mutateAsync(inventoryItem.id)
                           }}
                         >
-                          {inventoryItem.isActive ? 'Deactivate' : 'Activate'}
+                          {inventoryItem.isActive ? t('common.deactivate') : t('common.activate')}
                         </button>
                       ) : null}
                     </div>

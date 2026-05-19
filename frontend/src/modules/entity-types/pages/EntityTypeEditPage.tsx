@@ -7,8 +7,10 @@ import { entityTypesClient } from '@/modules/entity-types/api/entity-types-clien
 import type { EntityTypeFormValues } from '@/modules/entity-types/schemas/entity-type-form-schema'
 import { buildEntityTypeDetailPath } from '@/shared/routing/route-paths'
 import { mapEntityTypeToFormValues } from '@/modules/entity-types/utils/entity-type-form-utils'
+import { useTranslation } from '@/shared/i18n/useTranslation'
 
 export function EntityTypeEditPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { entityTypeId } = useParams()
   const queryClient = useQueryClient()
@@ -34,9 +36,9 @@ export function EntityTypeEditPage() {
   if (!entityTypeId || !accessToken) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Entity type administration</p>
-        <h1>Entity type could not be resolved.</h1>
-        <p>The edit route requires a valid entity type id and an authenticated session.</p>
+        <p className="hero-panel__eyebrow">{t('entity.detail.administration')}</p>
+        <h1>{t('entity.detail.unresolvedTitle')}</h1>
+        <p>{t('entity.edit.unresolvedHelp')}</p>
       </section>
     )
   }
@@ -44,9 +46,9 @@ export function EntityTypeEditPage() {
   if (entityTypeQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Entity type administration</p>
-        <h1>Loading entity definition.</h1>
-        <p>InfraOps is fetching the current configuration before editing.</p>
+        <p className="hero-panel__eyebrow">{t('entity.detail.administration')}</p>
+        <h1>{t('entity.detail.loadingTitle')}</h1>
+        <p>{t('entity.edit.loadingHelp')}</p>
       </section>
     )
   }
@@ -54,19 +56,19 @@ export function EntityTypeEditPage() {
   if (entityTypeQuery.isError || !entityTypeQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Entity type administration</p>
-        <h1>Entity definition could not be loaded.</h1>
-        <p>{entityTypeQuery.error?.message ?? 'The entity type was not found.'}</p>
+        <p className="hero-panel__eyebrow">{t('entity.detail.administration')}</p>
+        <h1>{t('entity.detail.loadFailed')}</h1>
+        <p>{entityTypeQuery.error?.message ?? t('entity.detail.notFound')}</p>
       </section>
     )
   }
 
   return (
     <EntityTypeForm
-      eyebrow="Entity type administration"
-      title={`Edit ${entityTypeQuery.data.name}`}
-      description="Update metadata, field configuration, and activation flags through one aggregate edit flow."
-      submitLabel="Save changes"
+      eyebrow={t('entity.detail.administration')}
+      title={t('entity.edit.title', { name: entityTypeQuery.data.name })}
+      description={t('entity.edit.description')}
+      submitLabel={t('common.save')}
       initialValues={mapEntityTypeToFormValues(entityTypeQuery.data)}
       onSubmit={async (values) => {
         await updateEntityTypeMutation.mutateAsync(values)

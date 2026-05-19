@@ -6,8 +6,11 @@ import { preventiveExecutionsClient } from '@/modules/preventive-executions/api/
 import { preventiveExecutionQueryKeys } from '@/modules/preventive-executions/api/preventive-execution-query-keys'
 import type { PreventiveExecutionAnswerInput } from '@/modules/preventive-executions/types/preventive-execution'
 import { buildPreventiveExecutionDetailPath, routePaths } from '@/shared/routing/route-paths'
+import { useTranslation } from '@/shared/i18n/useTranslation'
+import { localizeDemoText } from '@/shared/i18n/localized-domain-labels'
 
 export function PreventiveExecutionEditPage() {
+  const { locale, t } = useTranslation()
   const { preventiveExecutionId } = useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -44,8 +47,8 @@ export function PreventiveExecutionEditPage() {
   if (executionQuery.isLoading) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive execution</p>
-        <h1>Loading draft.</h1>
+        <p className="hero-panel__eyebrow">{t('executions.eyebrow')}</p>
+        <h1>{t('executions.loadingDraft')}</h1>
       </section>
     )
   }
@@ -53,8 +56,8 @@ export function PreventiveExecutionEditPage() {
   if (executionQuery.isError || !executionQuery.data) {
     return (
       <section className="status-panel">
-        <p className="hero-panel__eyebrow">Preventive execution</p>
-        <h1>Execution could not be loaded.</h1>
+        <p className="hero-panel__eyebrow">{t('executions.eyebrow')}</p>
+        <h1>{t('executions.loadFailed')}</h1>
         <p>{executionQuery.error?.message}</p>
       </section>
     )
@@ -66,17 +69,20 @@ export function PreventiveExecutionEditPage() {
     <section className="module-panel">
       <div className="module-panel__header">
         <div>
-          <p className="hero-panel__eyebrow">Draft execution</p>
+          <p className="hero-panel__eyebrow">{t('executions.draftEyebrow')}</p>
           <h1>{execution.inventoryItemDisplayName}</h1>
         </div>
         <p>
-          {execution.preventiveTemplateName} for {execution.entityTypeName}.
+          {t('executions.templateForEntityType', {
+            template: localizeDemoText(execution.preventiveTemplateName, locale),
+            entityType: localizeDemoText(execution.entityTypeName, locale),
+          })}
         </p>
       </div>
 
       <div className="module-panel__actions">
         <Link className="button--secondary" to={routePaths.preventiveExecutions}>
-          Back to executions
+          {t('executions.backToExecutions')}
         </Link>
       </div>
 
