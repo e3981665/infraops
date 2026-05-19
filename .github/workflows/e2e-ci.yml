@@ -64,6 +64,34 @@ jobs:
           docker compose -f compose.dev.yml logs api
           exit 1
 
+      - name: Wait for seeded demo API
+        run: |
+          for _ in {1..60}; do
+            login_response="$(curl -fsS \
+              -X POST http://localhost:8080/api/auth/login \
+              -H 'Content-Type: application/json' \
+              -d '{"email":"admin@infraops.local","password":"InfraOps.Admin!123"}' || true)"
+
+            access_token="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("accessToken",""))' <<< "$login_response" 2>/dev/null || true)"
+
+            if [ -n "$access_token" ]; then
+              dashboard_response="$(curl -fsS \
+                -H "Authorization: Bearer $access_token" \
+                http://localhost:8080/api/dashboard/summary || true)"
+
+              if python3 -c 'import json,sys; data=json.load(sys.stdin); sys.exit(0 if data.get("totalInventoryItems", 0) > 0 else 1)' <<< "$dashboard_response" 2>/dev/null; then
+                echo "Seeded demo API is ready."
+                exit 0
+              fi
+            fi
+
+            sleep 2
+          done
+
+          docker compose -f compose.dev.yml ps
+          docker compose -f compose.dev.yml logs api
+          exit 1
+
       - name: Wait for frontend
         run: |
           for _ in {1..60}; do
@@ -80,6 +108,24 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: http://localhost:5173
         run: npm run test:e2e
+
+      - name: Upload Docker logs on E2E failure
+        if: failure()
+        run: |
+          mkdir -p e2e-docker-logs
+          docker compose -f compose.dev.yml ps > e2e-docker-logs/compose-ps.txt
+          docker compose -f compose.dev.yml logs api > e2e-docker-logs/api.log
+          docker compose -f compose.dev.yml logs frontend > e2e-docker-logs/frontend.log
+          docker compose -f compose.dev.yml logs postgres > e2e-docker-logs/postgres.log
+
+      - name: Upload Docker log artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-docker-logs
+          path: e2e-docker-logs/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload Playwright report
         if: always()
