@@ -43,14 +43,16 @@ More detail is available in [docs/index.md](docs/index.md), including the [secur
 
 ## Screenshots
 
-Screenshots are intentionally represented as placeholders until final capture from the Docker demo environment:
+The repository includes screenshot placeholders and capture guidance under [docs/screenshots](docs/screenshots/README.md). Recommended final assets:
 
-- [docs/screenshots/dashboard.png](docs/screenshots/dashboard.png) - operational dashboard
-- [docs/screenshots/inventory-detail.png](docs/screenshots/inventory-detail.png) - dynamic inventory attributes and audit metadata
-- [docs/screenshots/preventive-execution.png](docs/screenshots/preventive-execution.png) - technician checklist execution
-- [docs/screenshots/preventive-validation.png](docs/screenshots/preventive-validation.png) - validator review and validation history
-
-See [docs/screenshots/README.md](docs/screenshots/README.md) for capture guidance.
+- [Dashboard light / English](docs/screenshots/dashboard-light-en.png)
+- [Dashboard dark / English](docs/screenshots/dashboard-dark-en.png)
+- [Dashboard Portuguese](docs/screenshots/dashboard-pt-br.png)
+- [Entity type builder](docs/screenshots/entity-type-builder.png)
+- [Inventory form](docs/screenshots/inventory-form.png)
+- [Preventive template builder](docs/screenshots/preventive-template-builder.png)
+- [Preventive execution](docs/screenshots/preventive-execution.png)
+- [Validation queue](docs/screenshots/validation-queue.png)
 
 ## Demo Walkthrough
 
@@ -304,4 +306,4 @@ Realistic next improvements:
 
 ## License
 
-This repository currently includes a license placeholder. Before publishing or accepting contributions, choose a final license such as MIT for broad portfolio reuse or Apache-2.0 if explicit patent language is desired.
+InfraOps is released under the [MIT License](LICENSE).

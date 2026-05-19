@@ -10,6 +10,7 @@ This folder contains the supporting architecture and workflow documentation for 
 - [Observability](observability.md) explains structured logging, correlation IDs, error responses, and future OpenTelemetry readiness.
 - [Security](security.md) explains authentication, authorization, refresh tokens, security headers, CORS, rate limiting, dependency scanning, and production hardening.
 - [Troubleshooting](troubleshooting.md) lists Docker logs, reset commands, tests, E2E commands, and common local issues.
+- [Publishing Checklist](publishing-checklist.md) lists final repository, screenshot, validation, deployment, and portfolio checks.
 - [Screenshots](screenshots/README.md) lists the expected portfolio screenshot captures.
 
 ## Review Path

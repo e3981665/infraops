@@ -1,6 +1,15 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import { demoUsers } from './fixtures/users'
 import { login, navigateBySidebar, selectFirstMatchingOption, uniqueSuffix } from './support/app'
+
+async function fillBuilderInput(page: Page, inputId: string, value: string) {
+  const input = page.locator(`[id="${inputId}"]`)
+
+  await expect(input).toBeVisible()
+  await input.click()
+  await input.pressSequentially(value)
+  await expect(input).toHaveValue(value)
+}
 
 test('admin creates an entity type with dynamic text and select fields', async ({ page }) => {
   const suffix = uniqueSuffix()
@@ -16,13 +25,15 @@ test('admin creates an entity type with dynamic text and select fields', async (
   await page.getByLabel('Description').fill('Created by Playwright E2E coverage.')
 
   await page.getByLabel('Field key').fill('assetTag')
-  await page.getByLabel('Display label').fill('Asset Tag')
+  await expect(page.locator('[id="fieldDefinitions.0.fieldKey"]')).toHaveValue('assetTag')
+  await fillBuilderInput(page, 'fieldDefinitions.0.displayLabel', 'Asset Tag')
   await page.getByLabel('Field type').selectOption('text')
   await page.getByLabel('Required field').check()
 
   await page.getByRole('button', { name: /add field/i }).click()
   await page.getByLabel('Field key').nth(1).fill('assetClass')
-  await page.getByLabel('Display label').nth(1).fill('Asset Class')
+  await expect(page.locator('[id="fieldDefinitions.1.fieldKey"]')).toHaveValue('assetClass')
+  await fillBuilderInput(page, 'fieldDefinitions.1.displayLabel', 'Asset Class')
   await page.getByLabel('Field type').nth(1).selectOption('select')
 
   await page.getByRole('button', { name: /add option/i }).click()
@@ -71,3 +82,4 @@ test('admin creates inventory with dynamic fields from a configured entity type'
   await page.getByLabel('Search').fill(inventoryName)
   await expect(page.getByText(inventoryName).first()).toBeVisible()
 })
+
