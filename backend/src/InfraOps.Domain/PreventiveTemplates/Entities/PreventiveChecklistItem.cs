@@ -1,4 +1,5 @@
 using InfraOps.Domain.Common.Exceptions;
+using InfraOps.Domain.Common.Text;
 using InfraOps.Domain.PreventiveTemplates.Enums;
 using InfraOps.Domain.PreventiveTemplates.Models;
 
@@ -149,7 +150,7 @@ public sealed class PreventiveChecklistItem
             throw new DomainRuleException("Preventive checklist item key cannot exceed 80 characters.");
         }
 
-        if (!System.Text.RegularExpressions.Regex.IsMatch(normalizedKey, "^[a-z][A-Za-z0-9]*$"))
+        if (!IdentifierText.IsLowerCamelAlphaNumericKey(normalizedKey))
         {
             throw new DomainRuleException("Preventive checklist item key must start with a lowercase letter and use only letters and numbers.");
         }

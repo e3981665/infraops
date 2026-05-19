@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using InfraOps.Api.Contracts.Responses;
+using InfraOps.Api.Logging;
 using FluentValidation;
 using InfraOps.Application.Common.Exceptions;
 using InfraOps.Domain.Common.Exceptions;
@@ -73,7 +74,7 @@ public sealed class ExceptionHandlingMiddleware
             _logger.LogError(
                 exception,
                 "Unhandled exception while processing {Path} with correlation {CorrelationId}.",
-                context.Request.Path.Value,
+                LogSanitizer.Sanitize(context.Request.Path.Value),
                 correlationId);
 
             await WriteErrorResponseAsync(

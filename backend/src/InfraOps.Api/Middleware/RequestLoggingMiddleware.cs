@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using InfraOps.Api.Logging;
 
 namespace InfraOps.Api.Middleware;
 
@@ -22,8 +23,8 @@ public sealed class RequestLoggingMiddleware
 
         _logger.LogInformation(
             "HTTP request started {Method} {Path} with correlation {CorrelationId}.",
-            context.Request.Method,
-            context.Request.Path.Value,
+            LogSanitizer.Sanitize(context.Request.Method, 16),
+            LogSanitizer.Sanitize(context.Request.Path.Value),
             correlationId);
 
         try
@@ -36,8 +37,8 @@ public sealed class RequestLoggingMiddleware
 
             _logger.LogInformation(
                 "HTTP request completed {Method} {Path} with {StatusCode} in {ElapsedMilliseconds} ms and correlation {CorrelationId}.",
-                context.Request.Method,
-                context.Request.Path.Value,
+                LogSanitizer.Sanitize(context.Request.Method, 16),
+                LogSanitizer.Sanitize(context.Request.Path.Value),
                 context.Response.StatusCode,
                 stopwatch.ElapsedMilliseconds,
                 correlationId);

@@ -1,3 +1,4 @@
+using InfraOps.Api.Logging;
 using Serilog.Context;
 
 namespace InfraOps.Api.Middleware;
@@ -51,9 +52,9 @@ public sealed class CorrelationIdMiddleware
 
         if (!string.IsNullOrWhiteSpace(incomingCorrelationId))
         {
-            return incomingCorrelationId.Trim()[..Math.Min(incomingCorrelationId.Trim().Length, MaxCorrelationIdLength)];
+            return LogSanitizer.Sanitize(incomingCorrelationId.Trim(), MaxCorrelationIdLength);
         }
 
-        return context.TraceIdentifier;
+        return LogSanitizer.Sanitize(context.TraceIdentifier, MaxCorrelationIdLength);
     }
 }

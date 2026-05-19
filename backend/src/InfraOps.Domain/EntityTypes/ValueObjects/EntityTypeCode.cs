@@ -1,9 +1,9 @@
-using System.Text.RegularExpressions;
 using InfraOps.Domain.Common.Exceptions;
+using InfraOps.Domain.Common.Text;
 
 namespace InfraOps.Domain.EntityTypes.ValueObjects;
 
-public sealed partial record EntityTypeCode
+public sealed record EntityTypeCode
 {
     public string Value { get; }
 
@@ -26,7 +26,7 @@ public sealed partial record EntityTypeCode
             throw new DomainRuleException("Entity type code cannot exceed 60 characters.");
         }
 
-        if (!EntityTypeCodeRegex().IsMatch(normalizedValue))
+        if (!IdentifierText.IsLowercaseSlug(normalizedValue))
         {
             throw new DomainRuleException("Entity type code must use lowercase letters, numbers, and hyphens only.");
         }
@@ -41,13 +41,6 @@ public sealed partial record EntityTypeCode
 
     private static string Normalize(string value)
     {
-        var normalizedValue = value.Trim().ToLowerInvariant();
-        normalizedValue = Regex.Replace(normalizedValue, @"[\s_]+", "-", RegexOptions.CultureInvariant);
-        normalizedValue = Regex.Replace(normalizedValue, @"-+", "-", RegexOptions.CultureInvariant);
-
-        return normalizedValue;
+        return IdentifierText.NormalizeSlugSeparators(value, trimHyphens: false);
     }
-
-    [GeneratedRegex("^[a-z0-9]+(?:-[a-z0-9]+)*$", RegexOptions.CultureInvariant)]
-    private static partial Regex EntityTypeCodeRegex();
 }

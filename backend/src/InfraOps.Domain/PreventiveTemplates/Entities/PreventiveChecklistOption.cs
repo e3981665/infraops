@@ -1,4 +1,5 @@
 using InfraOps.Domain.Common.Exceptions;
+using InfraOps.Domain.Common.Text;
 
 namespace InfraOps.Domain.PreventiveTemplates.Entities;
 
@@ -71,25 +72,14 @@ public sealed class PreventiveChecklistOption
             throw new DomainRuleException("Preventive checklist option value is required.");
         }
 
-        var normalizedValue = value
-            .Trim()
-            .ToLowerInvariant()
-            .Replace(' ', '-')
-            .Replace('_', '-');
-
-        while (normalizedValue.Contains("--", StringComparison.Ordinal))
-        {
-            normalizedValue = normalizedValue.Replace("--", "-", StringComparison.Ordinal);
-        }
-
-        normalizedValue = normalizedValue.Trim('-');
+        var normalizedValue = IdentifierText.NormalizeSlugSeparators(value, trimHyphens: true);
 
         if (normalizedValue.Length is 0 or > 80)
         {
             throw new DomainRuleException("Preventive checklist option value must be between 1 and 80 characters.");
         }
 
-        if (!System.Text.RegularExpressions.Regex.IsMatch(normalizedValue, "^[a-z0-9]+(?:-[a-z0-9]+)*$"))
+        if (!IdentifierText.IsLowercaseSlug(normalizedValue))
         {
             throw new DomainRuleException("Preventive checklist option value must use lowercase letters, numbers, and hyphens only.");
         }

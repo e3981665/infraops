@@ -1,5 +1,6 @@
 using InfraOps.Api.Contracts.Requests.EntityTypes;
 using InfraOps.Api.Contracts.Responses.EntityTypes;
+using InfraOps.Api.Logging;
 using InfraOps.Application.Abstractions.Messaging;
 using InfraOps.Application.EntityTypes.Commands.ActivateEntityType;
 using InfraOps.Application.EntityTypes.Commands.CreateEntityType;
@@ -81,7 +82,7 @@ public sealed class EntityTypesController : ControllerBase
         _logger.LogInformation(
             "Entity type created {EntityTypeId} with code {EntityTypeCode}.",
             result.Id,
-            result.Code);
+            LogSanitizer.Sanitize(result.Code, 80));
 
         return CreatedAtAction(nameof(GetById), new { entityTypeId = result.Id }, MapResponse(result));
     }
@@ -105,7 +106,7 @@ public sealed class EntityTypesController : ControllerBase
         _logger.LogInformation(
             "Entity type updated {EntityTypeId} with code {EntityTypeCode}.",
             result.Id,
-            result.Code);
+            LogSanitizer.Sanitize(result.Code, 80));
 
         return Ok(MapResponse(result));
     }

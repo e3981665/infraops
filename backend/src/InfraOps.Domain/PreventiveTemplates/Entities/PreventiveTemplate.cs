@@ -1,4 +1,5 @@
 using InfraOps.Domain.Common.Exceptions;
+using InfraOps.Domain.Common.Text;
 using InfraOps.Domain.EntityTypes.Entities;
 using InfraOps.Domain.PreventiveTemplates.Models;
 
@@ -189,25 +190,14 @@ public sealed class PreventiveTemplate
             throw new DomainRuleException("Preventive template code is required.");
         }
 
-        var normalizedCode = code
-            .Trim()
-            .ToLowerInvariant()
-            .Replace(' ', '-')
-            .Replace('_', '-');
-
-        while (normalizedCode.Contains("--", StringComparison.Ordinal))
-        {
-            normalizedCode = normalizedCode.Replace("--", "-", StringComparison.Ordinal);
-        }
-
-        normalizedCode = normalizedCode.Trim('-');
+        var normalizedCode = IdentifierText.NormalizeSlugSeparators(code, trimHyphens: true);
 
         if (normalizedCode.Length is 0 or > 60)
         {
             throw new DomainRuleException("Preventive template code must be between 1 and 60 characters.");
         }
 
-        if (!System.Text.RegularExpressions.Regex.IsMatch(normalizedCode, "^[a-z0-9]+(?:-[a-z0-9]+)*$"))
+        if (!IdentifierText.IsLowercaseSlug(normalizedCode))
         {
             throw new DomainRuleException("Preventive template code must use lowercase letters, numbers, and hyphens only.");
         }

@@ -1,9 +1,9 @@
-using System.Text.RegularExpressions;
 using InfraOps.Domain.Common.Exceptions;
+using InfraOps.Domain.Common.Text;
 
 namespace InfraOps.Domain.EntityTypes.ValueObjects;
 
-public sealed partial record EntityFieldKey
+public sealed record EntityFieldKey
 {
     public string Value { get; }
 
@@ -26,7 +26,7 @@ public sealed partial record EntityFieldKey
             throw new DomainRuleException("Entity field key cannot exceed 80 characters.");
         }
 
-        if (!EntityFieldKeyRegex().IsMatch(normalizedValue))
+        if (!IdentifierText.IsLowerCamelAlphaNumericKey(normalizedValue))
         {
             throw new DomainRuleException("Entity field key must start with a lowercase letter and use only letters and numbers.");
         }
@@ -38,7 +38,4 @@ public sealed partial record EntityFieldKey
     {
         return Value;
     }
-
-    [GeneratedRegex("^[a-z][A-Za-z0-9]*$", RegexOptions.CultureInvariant)]
-    private static partial Regex EntityFieldKeyRegex();
 }

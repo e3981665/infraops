@@ -1,5 +1,6 @@
 using InfraOps.Api.Contracts.Requests.Auth;
 using InfraOps.Api.Contracts.Responses.Auth;
+using InfraOps.Api.Logging;
 using InfraOps.Application.Abstractions.Messaging;
 using InfraOps.Application.Identity.Commands.Login;
 using InfraOps.Application.Identity.Commands.Logout;
@@ -55,11 +56,11 @@ public sealed class AuthController : ControllerBase
         }
         catch (ApplicationUnauthorizedException)
         {
-            _logger.LogWarning("Login failed for {Email}.", request.Email);
+            _logger.LogWarning("Login failed for {Email}.", LogSanitizer.Sanitize(request.Email));
             throw;
         }
 
-        _logger.LogInformation("Login succeeded for {Email}.", request.Email);
+        _logger.LogInformation("Login succeeded for {Email}.", LogSanitizer.Sanitize(request.Email));
 
         return Ok(MapTokenResponse(result));
     }

@@ -1,5 +1,5 @@
-using System.Text.RegularExpressions;
 using InfraOps.Domain.Common.Exceptions;
+using InfraOps.Domain.Common.Text;
 
 namespace InfraOps.Domain.EntityTypes.Entities;
 
@@ -82,9 +82,7 @@ public sealed class EntityFieldOption
             throw new DomainRuleException("Entity field option value is required.");
         }
 
-        var normalizedValue = value.Trim().ToLowerInvariant();
-        normalizedValue = Regex.Replace(normalizedValue, @"[\s_]+", "-", RegexOptions.CultureInvariant);
-        normalizedValue = Regex.Replace(normalizedValue, @"-+", "-", RegexOptions.CultureInvariant);
+        var normalizedValue = IdentifierText.NormalizeSlugSeparators(value, trimHyphens: false);
 
         if (normalizedValue.Length > 80)
         {
