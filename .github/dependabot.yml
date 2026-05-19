@@ -1,31 +1,207 @@
+# Dependency update strategy:
+# - Batch routine patch/minor updates by ecosystem to reduce PR noise.
+# - Keep major upgrades out of automatic routine PRs for higher-risk toolchains.
+# - Dependabot security alerts/updates remain enabled by repository security settings;
+#   urgent vulnerable dependencies should still be reviewed even when a major upgrade is required.
+
 version: 2
 updates:
+  - package-ecosystem: dotnet-sdk
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:45"
+    open-pull-requests-limit: 1
+    labels:
+      - dependencies
+      - backend
+      - sdk
+    commit-message:
+      prefix: deps
+      include: scope
+    groups:
+      dotnet-sdk-patch-minor:
+        patterns:
+          - "*"
+        update-types:
+          - patch
+          - minor
+    ignore:
+      # .NET SDK major jumps are manual because they affect local tooling,
+      # Docker images, CI setup, target frameworks, and NuGet compatibility.
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
+
   - package-ecosystem: nuget
     directory: /backend
     schedule:
       interval: weekly
+      day: monday
+      time: "08:00"
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - backend
+    commit-message:
+      prefix: deps
+      include: scope
+    groups:
+      backend-dotnet-patch-minor:
+        patterns:
+          - "*"
+        update-types:
+          - patch
+          - minor
+    ignore:
+      # .NET/ASP.NET/EF Core major upgrades should be planned together with runtime,
+      # Docker image, SDK, and CI validation changes.
+      - dependency-name: "Microsoft.*"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "System.*"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "Npgsql.*"
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: npm
     directory: /frontend
     schedule:
       interval: weekly
+      day: monday
+      time: "08:15"
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - frontend
+    commit-message:
+      prefix: deps
+      include: scope
+    groups:
+      frontend-runtime-patch-minor:
+        dependency-type: production
+        patterns:
+          - "*"
+        update-types:
+          - patch
+          - minor
+      frontend-tooling-patch-minor:
+        dependency-type: development
+        patterns:
+          - "*"
+        update-types:
+          - patch
+          - minor
+    ignore:
+      # These major upgrades can change compiler, lint, validation, and API behavior.
+      # Handle them manually with focused migration notes and full local/E2E validation.
+      - dependency-name: "typescript"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "eslint"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "@eslint/*"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "typescript-eslint"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "zod"
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: npm
     directory: /tools/mcp-db-server
     schedule:
       interval: weekly
+      day: monday
+      time: "08:30"
+    open-pull-requests-limit: 1
+    labels:
+      - dependencies
+      - tooling
+    commit-message:
+      prefix: deps
+      include: scope
+    groups:
+      mcp-tooling-patch-minor:
+        patterns:
+          - "*"
+        update-types:
+          - patch
+          - minor
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+      day: monday
+      time: "08:45"
+    open-pull-requests-limit: 1
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: deps
+      include: scope
+    groups:
+      github-actions-patch-minor:
+        patterns:
+          - "*"
+        update-types:
+          - patch
+          - minor
 
   - package-ecosystem: docker
     directory: /backend
     schedule:
       interval: weekly
+      day: monday
+      time: "09:00"
+    open-pull-requests-limit: 1
+    labels:
+      - dependencies
+      - docker
+      - backend
+    commit-message:
+      prefix: deps
+      include: scope
+    groups:
+      backend-docker-patch-minor:
+        patterns:
+          - "*"
+        update-types:
+          - patch
+          - minor
+    ignore:
+      # Keep .NET SDK major jumps manual so local Docker, CI, target framework,
+      # and package ecosystem updates are coordinated.
+      - dependency-name: "mcr.microsoft.com/dotnet/sdk"
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: docker
     directory: /frontend
     schedule:
       interval: weekly
+      day: monday
+      time: "09:15"
+    open-pull-requests-limit: 1
+    labels:
+      - dependencies
+      - docker
+      - frontend
+    commit-message:
+      prefix: deps
+      include: scope
+    groups:
+      frontend-docker-patch-minor:
+        patterns:
+          - "*"
+        update-types:
+          - patch
+          - minor
