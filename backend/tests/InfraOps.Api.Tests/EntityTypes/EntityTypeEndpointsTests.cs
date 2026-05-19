@@ -124,7 +124,7 @@ public sealed class EntityTypeEndpointsTests : IClassFixture<InfraOpsApiFactory>
     {
         using var response = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(
             "admin@infraops.local",
-            "InfraOps.Admin!123"));
+            "DemoOnly-Admin-Local"));
 
         response.EnsureSuccessStatusCode();
 

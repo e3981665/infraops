@@ -116,7 +116,7 @@ public sealed class PreventiveValidationEndpointsTests : IClassFixture<InfraOpsA
         var technicianTokens = await LoginAsync(
             technicianClient,
             "technician@infraops.local",
-            "InfraOps.Tech!123");
+            "DemoOnly-Tech-Local");
         technicianClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
             "Bearer",
             technicianTokens.AccessToken);
@@ -139,7 +139,7 @@ public sealed class PreventiveValidationEndpointsTests : IClassFixture<InfraOpsA
 
     private static Task<TokenResponse> LoginAsync(HttpClient client)
     {
-        return LoginAsync(client, "admin@infraops.local", "InfraOps.Admin!123");
+        return LoginAsync(client, "admin@infraops.local", "DemoOnly-Admin-Local");
     }
 
     private static async Task<TokenResponse> LoginAsync(

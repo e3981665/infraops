@@ -1,14 +1,15 @@
+// Intentional local/demo credentials for seeded Docker E2E workflows only.
 export const demoUsers = {
   admin: {
     email: 'admin@infraops.local',
-    password: 'InfraOps.Admin!123',
+    password: 'DemoOnly-Admin-Local',
   },
   technician: {
     email: 'technician@infraops.local',
-    password: 'InfraOps.Tech!123',
+    password: 'DemoOnly-Tech-Local',
   },
   validator: {
     email: 'validator@infraops.local',
-    password: 'InfraOps.Validator!123',
+    password: 'DemoOnly-Validator-Local',
   },
 } as const

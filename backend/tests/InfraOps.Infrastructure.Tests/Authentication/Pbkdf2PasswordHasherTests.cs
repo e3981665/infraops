@@ -9,9 +9,9 @@ public sealed class Pbkdf2PasswordHasherTests
     {
         var passwordHasher = new Pbkdf2PasswordHasher();
 
-        var passwordHash = passwordHasher.Hash("InfraOps.Admin!123");
+        var passwordHash = passwordHasher.Hash("DemoOnly-Admin-Local");
 
-        var result = passwordHasher.Verify("InfraOps.Admin!123", passwordHash);
+        var result = passwordHasher.Verify("DemoOnly-Admin-Local", passwordHash);
 
         Assert.True(result);
     }

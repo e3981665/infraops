@@ -82,13 +82,13 @@ Invoke-WebRequest -UseBasicParsing http://localhost:5173
 
 ## Development Credentials
 
-These are development-only seeded users:
+These are intentionally fake development-only seeded users. Generic secret scanners may report them as password-like strings; they are local demo credentials, not production secrets.
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Admin | `admin@infraops.local` | `InfraOps.Admin!123` |
-| Technician | `technician@infraops.local` | `InfraOps.Tech!123` |
-| Validator | `validator@infraops.local` | `InfraOps.Validator!123` |
+| Admin | `admin@infraops.local` | `DemoOnly-Admin-Local` |
+| Technician | `technician@infraops.local` | `DemoOnly-Tech-Local` |
+| Validator | `validator@infraops.local` | `DemoOnly-Validator-Local` |
 
 Do not use these values outside the local/demo environment.
 

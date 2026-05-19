@@ -67,10 +67,11 @@ jobs:
       - name: Wait for seeded demo API
         run: |
           for _ in {1..60}; do
+            # Intentional fake local/demo credential used only by the seeded Docker E2E stack.
             login_response="$(curl -fsS \
               -X POST http://localhost:8080/api/auth/login \
               -H 'Content-Type: application/json' \
-              -d '{"email":"admin@infraops.local","password":"InfraOps.Admin!123"}' || true)"
+              -d '{"email":"admin@infraops.local","password":"DemoOnly-Admin-Local"}' || true)"
 
             access_token="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("accessToken",""))' <<< "$login_response" 2>/dev/null || true)"
 

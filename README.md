@@ -68,13 +68,13 @@ The repository includes screenshot placeholders and capture guidance under [docs
 
 ## Development-Only Demo Credentials
 
-These credentials are seeded only for local development and portfolio demos. They are not production secrets and must be changed for any non-local environment.
+These credentials are intentionally fake and seeded only for local development and portfolio demos. They are not production secrets, may be reported by generic secret scanners, and must be changed for any non-local environment.
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Admin | `admin@infraops.local` | `InfraOps.Admin!123` |
-| Technician | `technician@infraops.local` | `InfraOps.Tech!123` |
-| Validator | `validator@infraops.local` | `InfraOps.Validator!123` |
+| Admin | `admin@infraops.local` | `DemoOnly-Admin-Local` |
+| Technician | `technician@infraops.local` | `DemoOnly-Tech-Local` |
+| Validator | `validator@infraops.local` | `DemoOnly-Validator-Local` |
 
 ## Running Locally With Docker
 

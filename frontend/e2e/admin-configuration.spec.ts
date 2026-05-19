@@ -61,12 +61,11 @@ test('admin creates inventory with dynamic fields from a configured entity type'
   await navigateBySidebar(page, 'Inventory')
   await page.getByRole('link', { name: /register inventory item/i }).click()
 
-  await selectFirstMatchingOption(page.getByLabel('Region'), /North Region|Região Norte/)
-  await selectFirstMatchingOption(page.getByLabel('Site'), /North Hub|Hub Norte/)
-
   await page.getByLabel('Display name').fill(inventoryName)
   await page.getByLabel('Installation date').fill('2026-05-19')
   await selectFirstMatchingOption(page.getByLabel('Entity type'), /^Generator$/)
+  await selectFirstMatchingOption(page.getByLabel('Region'), /North Region|Região Norte/)
+  await selectFirstMatchingOption(page.getByLabel('Site'), /North Hub|Hub Norte/)
 
   await expect(page.getByLabel(/serial number/i)).toBeVisible()
   await page.getByLabel(/serial number/i).fill(`${inventoryName}-SN`)

@@ -74,7 +74,7 @@ public sealed class DashboardEndpointsTests : IClassFixture<InfraOpsApiFactory>
     {
         using var response = await client.PostAsJsonAsync(
             "/api/auth/login",
-            new LoginRequest("admin@infraops.local", "InfraOps.Admin!123"));
+            new LoginRequest("admin@infraops.local", "DemoOnly-Admin-Local"));
 
         response.EnsureSuccessStatusCode();
 

@@ -24,7 +24,7 @@ public sealed class AuthEndpointsTests : IClassFixture<InfraOpsApiFactory>
 
         using var response = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(
             "admin@infraops.local",
-            "InfraOps.Admin!123"));
+            "DemoOnly-Admin-Local"));
 
         var payload = await response.Content.ReadFromJsonAsync<TokenResponse>();
 
@@ -59,7 +59,7 @@ public sealed class AuthEndpointsTests : IClassFixture<InfraOpsApiFactory>
 
         using var response = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(
             "admin@infraops.local",
-            "InfraOps.Admin!123"));
+            "DemoOnly-Admin-Local"));
         var responseBody = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -127,7 +127,7 @@ public sealed class AuthEndpointsTests : IClassFixture<InfraOpsApiFactory>
     {
         using var response = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(
             "admin@infraops.local",
-            "InfraOps.Admin!123"));
+            "DemoOnly-Admin-Local"));
 
         response.EnsureSuccessStatusCode();
 

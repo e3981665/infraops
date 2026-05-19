@@ -43,7 +43,7 @@ public sealed class AuthorizationEndpointsTests : IClassFixture<InfraOpsApiFacto
         using var client = _factory.CreateClient();
         using var loginResponse = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(
             "admin@infraops.local",
-            "InfraOps.Admin!123"));
+            "DemoOnly-Admin-Local"));
 
         loginResponse.EnsureSuccessStatusCode();
 

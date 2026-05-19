@@ -14,7 +14,7 @@ InfraOps is an MVP portfolio application, but it is structured to demonstrate pr
 - Logout revokes the submitted refresh token.
 - Inactive users cannot log in or refresh tokens.
 
-Development seed credentials are documented in the root README and are for local/demo use only. Replace all JWT signing keys, seed credentials, and database credentials for any non-local environment.
+Development seed credentials are documented in the root README and are for local/demo use only. They use obvious `DemoOnly-*` values so generic secret-scanning findings can be classified as intentional demo credentials, not leaked production secrets. Replace all JWT signing keys, seed credentials, and database credentials for any non-local environment.
 
 ## Authorization
 
@@ -147,6 +147,16 @@ npm audit
 ```
 
 `npm audit` is informational by default. Review high or critical vulnerabilities promptly, especially when they affect production runtime dependencies.
+
+## Secret Scanning Triage
+
+Expected public-repository findings:
+
+- `DemoOnly-Admin-Local`, `DemoOnly-Tech-Local`, and `DemoOnly-Validator-Local` are seeded local demo passwords.
+- `LOCAL_DEVELOPMENT_SIGNING_KEY_REPLACE_ME_DEMO_ONLY` is a fake development JWT signing key for local startup only.
+- `infraops_demo_only` is the local PostgreSQL password used by Docker Compose.
+
+These values are safe to publish because they are intentionally fake and scoped to local demo infrastructure. Treat any other password, token, API key, private key, production connection string, or non-demo signing key as a real incident: revoke it, remove it from history where appropriate, and rotate the affected service credential.
 
 ## Production Hardening Checklist
 

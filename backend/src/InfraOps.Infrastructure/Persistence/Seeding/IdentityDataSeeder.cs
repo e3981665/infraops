@@ -112,17 +112,18 @@ public sealed class IdentityDataSeeder
 
     private async Task EnsureDemoUsersAsync(CancellationToken cancellationToken)
     {
+        // Local/demo seed users only. These obvious fake passwords must not be reused in real deployments.
         await EnsureUserWithRoleAsync(
             "InfraOps Technician",
             "technician@infraops.local",
-            "InfraOps.Tech!123",
+            "DemoOnly-Tech-Local",
             RoleNames.Technician,
             cancellationToken);
 
         await EnsureUserWithRoleAsync(
             "InfraOps Validator",
             "validator@infraops.local",
-            "InfraOps.Validator!123",
+            "DemoOnly-Validator-Local",
             RoleNames.Validator,
             cancellationToken);
     }

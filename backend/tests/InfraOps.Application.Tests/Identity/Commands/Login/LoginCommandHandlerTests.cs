@@ -25,7 +25,7 @@ public sealed class LoginCommandHandlerTests
             new StubClock());
 
         var result = await handler.Handle(
-            new LoginCommand("admin@infraops.local", "InfraOps.Admin!123"),
+            new LoginCommand("admin@infraops.local", "DemoOnly-Admin-Local"),
             CancellationToken.None);
 
         Assert.Equal("access-token", result.AccessToken);

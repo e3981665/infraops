@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-infraops}
       POSTGRES_USER: ${POSTGRES_USER:-infraops}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-infraops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-infraops_demo_only}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -33,13 +33,13 @@ services:
       DOTNET_USE_POLLING_FILE_WATCHER: "1"
       DOTNET_WATCH_RESTART_ON_RUDE_EDIT: "1"
       DOTNET_WATCH_SUPPRESS_EMOJIS: "1"
-      ConnectionStrings__InfraOps: Host=postgres;Port=5432;Database=${POSTGRES_DB:-infraops};Username=${POSTGRES_USER:-infraops};Password=${POSTGRES_PASSWORD:-infraops}
+      ConnectionStrings__InfraOps: Host=postgres;Port=5432;Database=${POSTGRES_DB:-infraops};Username=${POSTGRES_USER:-infraops};Password=${POSTGRES_PASSWORD:-infraops_demo_only}
       Authentication__Issuer: InfraOps.Dev
       Authentication__Audience: InfraOps.Client
-      Authentication__SigningKey: ${INFRAOPS_JWT_SIGNING_KEY:-InfraOps.Local.Development.Signing.Key.2026.Enterprise.Safe}
+      Authentication__SigningKey: ${INFRAOPS_JWT_SIGNING_KEY:-LOCAL_DEVELOPMENT_SIGNING_KEY_REPLACE_ME_DEMO_ONLY}
       DevelopmentSeed__AdminFullName: ${INFRAOPS_ADMIN_FULL_NAME:-InfraOps Administrator}
       DevelopmentSeed__AdminEmail: ${INFRAOPS_ADMIN_EMAIL:-admin@infraops.local}
-      DevelopmentSeed__AdminPassword: ${INFRAOPS_ADMIN_PASSWORD:-InfraOps.Admin!123}
+      DevelopmentSeed__AdminPassword: ${INFRAOPS_ADMIN_PASSWORD:-DemoOnly-Admin-Local}
     ports:
       - "${API_PORT:-8080}:8080"
     volumes:
